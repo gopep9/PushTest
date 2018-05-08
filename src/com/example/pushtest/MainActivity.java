@@ -89,7 +89,7 @@ public class MainActivity extends Activity implements OnClickListener{
 				try {
 					StringBuilder response=new StringBuilder();
 					BufferedReader reader=null;
-					URL url = new URL("http://www.taobao.com");
+					URL url = new URL("http://172.25.0.1");
 					HttpURLConnection connection=(HttpURLConnection)url.openConnection();
 					connection.setRequestMethod("GET");
 					connection.setConnectTimeout(8000);
