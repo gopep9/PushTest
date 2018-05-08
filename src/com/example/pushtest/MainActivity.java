@@ -29,7 +29,6 @@ public class MainActivity extends Activity implements OnClickListener{
 	private Button btnStop;
 	private TextView messageText;
 	final static String TAG=MainActivity.class.getName();
-	private String receiveStr="";
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -73,8 +72,9 @@ public class MainActivity extends Activity implements OnClickListener{
 			}
 			messageNotificationManager.notify(messageNotificationID,
 					messageNotification);
-			String msg=getMessage();
-			messageText.setText(msg);
+			getMessage();
+//			String msg=getMessage();
+//			messageText.setText(msg);
 		}
 	}
 	
@@ -89,7 +89,7 @@ public class MainActivity extends Activity implements OnClickListener{
 				try {
 					StringBuilder response=new StringBuilder();
 					BufferedReader reader=null;
-					URL url = new URL("http://www.baidu.com");
+					URL url = new URL("http://www.taobao.com");
 					HttpURLConnection connection=(HttpURLConnection)url.openConnection();
 					connection.setRequestMethod("GET");
 					connection.setConnectTimeout(8000);
@@ -100,20 +100,23 @@ public class MainActivity extends Activity implements OnClickListener{
 					while((line=reader.readLine())!=null) {
 						response.append(line);
 					}
-					receiveStr=response.toString();
+					showResponse(response.toString());
 				}catch (Exception e) {
 					Log.e(TAG,e.toString());
 					// TODO: handle exception
 				}
 			}
 		});
-		try {
-			thread.start();
-			thread.join();
-		}catch (Exception e) {
-			// TODO: handle exception
-			Log.e(TAG,e.toString());
-		}
-		return receiveStr;
+		thread.start();
+		return "";
+	}
+	
+	private void showResponse(final String response) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				messageText.setText(response);
+			}
+		});
 	}
 }
