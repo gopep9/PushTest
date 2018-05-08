@@ -52,52 +52,17 @@ public class MainActivity extends Activity implements OnClickListener{
 			//点击按钮后要启动的intent
 			messageIntent=new Intent(this,MainActivity.class);
 			messagePendingIntent=PendingIntent.getActivity(this, 0, messageIntent, 0);
-			
-			if(Build.VERSION.SDK_INT<16||true)
-			{
-				Class notificationClass=messageNotification.getClass();
-				try {
-				Method setLatestEventInfoMethod=notificationClass.getDeclaredMethod("setLatestEventInfo",
-						Context.class,CharSequence.class,CharSequence.class,PendingIntent.class);
-				setLatestEventInfoMethod.invoke(messageNotification, this,"新消息","您有新消息1",messagePendingIntent);
-				}catch(Exception e) {
-					Log.e("MainActivity","2018581451"+e.toString());
-				}
+			//通过反射兼容16以下的sdk
+			Class notificationClass=messageNotification.getClass();
+			try {
+			Method setLatestEventInfoMethod=notificationClass.getDeclaredMethod("setLatestEventInfo",
+					Context.class,CharSequence.class,CharSequence.class,PendingIntent.class);
+			setLatestEventInfoMethod.invoke(messageNotification, this,"新消息","您有新消息1",messagePendingIntent);
+			}catch(Exception e) {
+				Log.e("MainActivity","2018581451"+e.toString());
 			}
-			else {
-				messageNotification = new Notification.Builder(this).setAutoCancel(true)
-						.setAutoCancel(true)
-						.setContentTitle("新消息")
-						.setContentText("您有新消息2")
-						.setContentIntent(messagePendingIntent)
-						.setSmallIcon(ResUtil.getDrawableId(this, "ic_launcher"))
-						.setWhen(System.currentTimeMillis())
-						.build();
-						
-			}
-//			messageNotification.setLatestEventInfo(
-//					getApplicationContext(), "新消息", "您有新消息。"
-//							+ "new message!!!", messagePendingIntent);
-//			
-//			
 			messageNotificationManager.notify(messageNotificationID,
 					messageNotification);
-
-			
-			
-			
-//			messageNotification.tickerText="新消息";
-//			messageNotification.defaults=Notification.DEFAULT_SOUND;
-//			messageNotificationManager=(NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-//			messageIntent = new Intent(this,MainActivity.class);
-//			messagePendingIntent=PendingIntent.getActivity(this, 0, messageIntent, 0);
-//            messageNotification.setLatestEventInfo(
-//                    getApplicationContext(), "新消息", "您有新消息。"
-//                            + "aa", messagePendingIntent);
-//
-//			messageNotificationManager.notify(messageNotificationID,messageNotification);
-//			messageNotification = new Notification.Builder(this).setSmallIcon(ResUtil.getDrawableId(this, "ic_launcher.png"));
-			
 		}
 	}
 }
