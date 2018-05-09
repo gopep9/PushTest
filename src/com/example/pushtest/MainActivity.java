@@ -10,11 +10,14 @@ import java.net.URL;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,6 +32,7 @@ public class MainActivity extends Activity implements OnClickListener{
 
 	private Button btnStart;
 	private Button btnStop;
+	private Button btnDelay;
 	private TextView messageText;
 	final static String TAG=MainActivity.class.getName();
 	@Override
@@ -40,7 +44,11 @@ public class MainActivity extends Activity implements OnClickListener{
 	private void initView() {
 		btnStart=(Button) findViewById(ResUtil.getId(this, "btnStart"));
 		btnStart.setOnClickListener(this);
+		btnDelay=(Button) findViewById(ResUtil.getId(this, "btnDelay"));
+		btnDelay.setOnClickListener(this);
 		messageText=(TextView)findViewById(ResUtil.getId(this, "messageText"));
+		
+		setAlarm("receive message", System.currentTimeMillis()/1000+10);
 	}
 	
 	private Intent messageIntent=null;
@@ -54,6 +62,32 @@ public class MainActivity extends Activity implements OnClickListener{
 		if(id==ResUtil.getId(this, "btnStart"))
 		{
 			getPushMessage();
+		}
+		else if(id==ResUtil.getId(this, "btnDelay"))
+		{
+			
+		}
+	}
+	private int noticeCount=0;//用于区分不同的PendingIntent，在新生成一个PendingIntent以后后加1
+	private void setAlarm(String noticeStr,long timestamp)
+	{
+		long longTime=timestamp*1000;
+		if(longTime>System.currentTimeMillis())
+		{
+			Intent intent=new Intent(MainActivity.this,PushReceiver.class);
+			intent.putExtra("noticeId", noticeCount);
+			intent.putExtra("noticeStr", noticeStr);
+			PendingIntent pi=PendingIntent.getBroadcast(MainActivity.this, noticeCount, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+			AlarmManager am=(AlarmManager)getSystemService(Activity.ALARM_SERVICE);
+			am.set(AlarmManager.RTC_WAKEUP, longTime, pi);
+			//下面的代码是用SharedPreferences存储这次的推送信息
+			SharedPreferences sharedPreferences=getSharedPreferences("Qdazzle_push",Context.MODE_PRIVATE );
+			Editor editor=sharedPreferences.edit();
+			editor.putLong("timestamp_"+noticeCount, longTime);
+			editor.putString("noticeStr_"+noticeCount, noticeStr);
+			editor.putInt("noticeCount", noticeCount);
+			editor.commit();
+			noticeCount++;
 		}
 	}
 	

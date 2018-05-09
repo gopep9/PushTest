@@ -13,10 +13,14 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="清除"/>
+    <Button 
+        android:id="@+id/btnDelay"
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:text="延迟推送"/>
     <TextView
         android:id="@+id/messageText"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="hello" />
-    
 </LinearLayout>
