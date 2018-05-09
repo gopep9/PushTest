@@ -48,7 +48,6 @@ public class MainActivity extends Activity implements OnClickListener{
 		btnDelay.setOnClickListener(this);
 		messageText=(TextView)findViewById(ResUtil.getId(this, "messageText"));
 		
-		setAlarm("receive message", System.currentTimeMillis()/1000+10);
 	}
 	
 	private Intent messageIntent=null;
@@ -65,7 +64,7 @@ public class MainActivity extends Activity implements OnClickListener{
 		}
 		else if(id==ResUtil.getId(this, "btnDelay"))
 		{
-			
+			setAlarm("receive message", System.currentTimeMillis()/1000+10);
 		}
 	}
 	private int noticeCount=0;//用于区分不同的PendingIntent，在新生成一个PendingIntent以后后加1
@@ -171,6 +170,7 @@ public class MainActivity extends Activity implements OnClickListener{
 				}
 				messageNotificationManager.notify(messageNotificationID,
 						messageNotification);
+				messageNotificationID++;
 			}
 		});
 	}
