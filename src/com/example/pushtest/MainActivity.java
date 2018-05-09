@@ -53,7 +53,6 @@ public class MainActivity extends Activity implements OnClickListener{
 		int id=v.getId();
 		if(id==ResUtil.getId(this, "btnStart"))
 		{
-			Log.e("2018581134","2018581134");
 			getPushMessage();
 		}
 	}
@@ -82,7 +81,7 @@ public class MainActivity extends Activity implements OnClickListener{
 					}
 					receivePushMessage(response.toString());
 				}catch (Exception e) {
-					Log.e(TAG,e.toString());
+					Log.e(TAG,"connect error:"+e.toString());
 					// TODO: handle exception
 				}
 			}
@@ -110,14 +109,14 @@ public class MainActivity extends Activity implements OnClickListener{
 						title=jObject.getString("title");
 						body=jObject.getString("body");
 					}else {
-						Log.e(TAG,"receivePushMessage getString:"+response);
+						Log.i(TAG,"receivePushMessage getString:"+response);
 					}
 				}catch (Exception e) {
 					// TODO: handle exception
 					Log.e(TAG,"receivePushMessage exception:"+e.toString());
 					return;
 				}
-				Log.e(TAG,"receivePushMessage code:"+code+"tickerText:"+tickerText+"body:"+body);
+				Log.i(TAG,"receivePushMessage code:"+code+"tickerText:"+tickerText+"body:"+body);
 				messageNotification = new Notification();
 				messageNotification.icon=ResUtil.getDrawableId(MainActivity.this, "ic_launcher");
 				messageNotification.tickerText=tickerText;
@@ -130,11 +129,11 @@ public class MainActivity extends Activity implements OnClickListener{
 				//通过反射兼容16以下的sdk
 				Class notificationClass=messageNotification.getClass();
 				try {
-				Method setLatestEventInfoMethod=notificationClass.getDeclaredMethod("setLatestEventInfo",
+					Method setLatestEventInfoMethod=notificationClass.getDeclaredMethod("setLatestEventInfo",
 						Context.class,CharSequence.class,CharSequence.class,PendingIntent.class);
-				setLatestEventInfoMethod.invoke(messageNotification, MainActivity.this,title,body,messagePendingIntent);
+					setLatestEventInfoMethod.invoke(messageNotification, MainActivity.this,title,body,messagePendingIntent);
 				}catch(Exception e) {
-					Log.e("MainActivity","2018581451"+e.toString());
+					Log.e("MainActivity","setLatestEventInfoMethod.invoke error:"+e.toString());
 				}
 				messageNotificationManager.notify(messageNotificationID,
 						messageNotification);
