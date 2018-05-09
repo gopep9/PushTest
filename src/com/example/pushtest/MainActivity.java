@@ -7,6 +7,8 @@ import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -52,33 +54,11 @@ public class MainActivity extends Activity implements OnClickListener{
 		if(id==ResUtil.getId(this, "btnStart"))
 		{
 			Log.e("2018581134","2018581134");
-			messageNotification = new Notification();
-			messageNotification.icon=ResUtil.getDrawableId(this, "ic_launcher");
-			messageNotification.tickerText="tickerText";
-			messageNotification.defaults=Notification.DEFAULT_SOUND;
-			messageNotification.flags=Notification.FLAG_AUTO_CANCEL;
-			messageNotificationManager=(NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-			//点击按钮后要启动的intent
-			messageIntent=new Intent(this,MainActivity.class);
-			messagePendingIntent=PendingIntent.getActivity(this, 0, messageIntent, 0);
-			//通过反射兼容16以下的sdk
-			Class notificationClass=messageNotification.getClass();
-			try {
-			Method setLatestEventInfoMethod=notificationClass.getDeclaredMethod("setLatestEventInfo",
-					Context.class,CharSequence.class,CharSequence.class,PendingIntent.class);
-			setLatestEventInfoMethod.invoke(messageNotification, this,"title","new message",messagePendingIntent);
-			}catch(Exception e) {
-				Log.e("MainActivity","2018581451"+e.toString());
-			}
-			messageNotificationManager.notify(messageNotificationID,
-					messageNotification);
-			getMessage();
-//			String msg=getMessage();
-//			messageText.setText(msg);
+			getPushMessage();
 		}
 	}
 	
-	private String getMessage()
+	private String getPushMessage()
 	{
 		String str="a";
 		Thread thread = new Thread(new Runnable() {
@@ -100,7 +80,7 @@ public class MainActivity extends Activity implements OnClickListener{
 					while((line=reader.readLine())!=null) {
 						response.append(line);
 					}
-					showResponse(response.toString());
+					receivePushMessage(response.toString());
 				}catch (Exception e) {
 					Log.e(TAG,e.toString());
 					// TODO: handle exception
@@ -111,11 +91,53 @@ public class MainActivity extends Activity implements OnClickListener{
 		return "";
 	}
 	
-	private void showResponse(final String response) {
+	private void receivePushMessage(final String response) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				messageText.setText(response);
+				JSONObject jObject;
+				int code=0;
+				String tickerText="";
+				String title="";
+				String body="";
+				try {
+					jObject = new JSONObject(response);
+					code = jObject.getInt("code");
+					if(0==code)
+					{
+						tickerText=jObject.getString("tickerText");
+						title=jObject.getString("title");
+						body=jObject.getString("body");
+					}else {
+						Log.e(TAG,"receivePushMessage getString:"+response);
+					}
+				}catch (Exception e) {
+					// TODO: handle exception
+					Log.e(TAG,"receivePushMessage exception:"+e.toString());
+					return;
+				}
+				Log.e(TAG,"receivePushMessage code:"+code+"tickerText:"+tickerText+"body:"+body);
+				messageNotification = new Notification();
+				messageNotification.icon=ResUtil.getDrawableId(MainActivity.this, "ic_launcher");
+				messageNotification.tickerText=tickerText;
+				messageNotification.defaults=Notification.DEFAULT_SOUND;
+				messageNotification.flags=Notification.FLAG_AUTO_CANCEL;
+				messageNotificationManager=(NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+				//点击按钮后要启动的intent
+				messageIntent=new Intent(MainActivity.this,MainActivity.class);
+				messagePendingIntent=PendingIntent.getActivity(MainActivity.this, 0, messageIntent, 0);
+				//通过反射兼容16以下的sdk
+				Class notificationClass=messageNotification.getClass();
+				try {
+				Method setLatestEventInfoMethod=notificationClass.getDeclaredMethod("setLatestEventInfo",
+						Context.class,CharSequence.class,CharSequence.class,PendingIntent.class);
+				setLatestEventInfoMethod.invoke(messageNotification, MainActivity.this,title,body,messagePendingIntent);
+				}catch(Exception e) {
+					Log.e("MainActivity","2018581451"+e.toString());
+				}
+				messageNotificationManager.notify(messageNotificationID,
+						messageNotification);
 			}
 		});
 	}
