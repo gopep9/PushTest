@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.json.JSONObject;
+
 import com.qdazzle.pushPlugin.aidl.INotificationService;
 
 import android.app.ActivityManager;
@@ -98,16 +100,16 @@ public class QdPushService extends Service{
 			return true;
 		}
 		
+		//public boolean schedueNotification(int id, int delayMinutes, String title, String content, int periodMinutes)
 		@Override
-		public boolean schedueNotification(int id, int delayMinutes, String title, String content, int periodMinutes)
+		public boolean schedueNotification(int id, int triggerMinutes, String title, String content, int periodMinutes)
 				throws RemoteException {
 			// TODO Auto-generated method stub
 			synchronized (mNotificationsLock)
 			{
 				QdNotification note = new QdNotification();
 				note.setId(id);
-				note.setTimeToNotify(System.currentTimeMillis() / 1000 / 60
-						+ delayMinutes);
+				note.setTimeToNotify(triggerMinutes);
 				note.setTitle(title);
 				note.setContent(content);
 				note.setPeriod(periodMinutes);
@@ -528,7 +530,36 @@ public class QdPushService extends Service{
 		{
 			return;
 		}
-		
+		JSONObject jObject;
+		int code=0;
+		String tickerText="";
+		String title="";
+		String content="";
+		String triggeringTime="";
+		try {
+			jObject=new JSONObject(response);
+			code=jObject.getInt("code");
+			if(0==code)
+			{
+				tickerText=jObject.getString("tickerText");
+				title=jObject.getString("title");
+				content=jObject.getString("content");
+				triggeringTime=jObject.getString("triggeringTime");
+			}else {
+				Log.i(TAG,"receivePushMessage getString:"+response);
+			}
+		}catch(Exception e) {
+			Log.e(TAG, "receivePushMessage exception:"+e.toString());
+			return;
+		}
+		if(0==code||
+				null!=tickerText||""!=tickerText||
+				null!=title||""!=title||
+				null!=content||""!=content||
+				null!=triggeringTime||""!=triggeringTime)
+		{
+			
+		}
 	}
 	
 	private String getServerPushMessage(int secsToWait,boolean hasForground,String urlStr,int port)
@@ -548,6 +579,7 @@ public class QdPushService extends Service{
 			while((line=reader.readLine())!=null) {
 				response.append(line);
 			}
+			Log.i(TAG,"request:"+urlStr+" port:"+port+" and receive string:"+response.toString());
 			return response.toString();
 		}catch (Exception e) {
 			// TODO: handle exception
