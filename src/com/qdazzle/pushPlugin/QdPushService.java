@@ -1,13 +1,18 @@
 package com.qdazzle.pushPlugin;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.DatagramSocket;
+import java.net.HttpURLConnection;
 import java.net.SocketException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
@@ -512,5 +517,42 @@ public class QdPushService extends Service{
 		{
 			e.printStackTrace();
 		}
+	}
+	
+	private void checkServerPush(int secsToWait,boolean hasForground)
+	{
+		String response="";
+	
+			response=getServerPushMessage(secsToWait, hasForground, mTempUserInfo.getPushUrl(), mTempUserInfo.getPushPort());
+		if(null==response||response=="")
+		{
+			return;
+		}
+		
+	}
+	
+	private String getServerPushMessage(int secsToWait,boolean hasForground,String urlStr,int port)
+	{
+		try {
+			int timeLeftMiliSec=secsToWait*1000;
+			StringBuilder response=new StringBuilder();
+			BufferedReader reader=null;
+			URL url=new URL(urlStr);
+			HttpURLConnection connection=(HttpURLConnection)url.openConnection();
+			connection.setRequestMethod("GET");
+			connection.setConnectTimeout(timeLeftMiliSec);
+			connection.setReadTimeout(timeLeftMiliSec);
+			InputStream inputStream=connection.getInputStream();
+			reader=new BufferedReader(new InputStreamReader(inputStream));
+			String line;
+			while((line=reader.readLine())!=null) {
+				response.append(line);
+			}
+			return response.toString();
+		}catch (Exception e) {
+			// TODO: handle exception
+			Log.e(TAG,"connect error:"+e.toString());
+		}
+		return "";
 	}
 }
