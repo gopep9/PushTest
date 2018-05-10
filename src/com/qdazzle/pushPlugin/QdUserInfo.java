@@ -14,11 +14,11 @@ public class QdUserInfo implements Serializable
 //	private int rid = 0;
 //	private String deviceId = "";
 	//区分不同的专服
-	private int platformId;
+	private int platformId=0;
 	//区分不同的渠道
-	private int channelId;
+	private int channelId=0;
 	//区分不同的包
-	private int pushPackId;
+	private int pushPackId=0;
 	private String pushUrl = "";
 	private int pushPort = 0;
 	

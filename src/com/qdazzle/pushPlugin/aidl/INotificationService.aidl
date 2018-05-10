@@ -6,6 +6,6 @@ interface INotificationService{
 	boolean unscheduleAllnotifications();
 	boolean setForgroundProcName(String procName);
 	void stopNotificationService();
-	void setPackageMessage(int platformId,int channelId,int pushPackId);
-	void setNetworkMessage(String url,int port);
+	boolean setPackageMessage(int platformId,int channelId,int pushPackId);
+	boolean setNetworkMessage(String url,int port);
 }
