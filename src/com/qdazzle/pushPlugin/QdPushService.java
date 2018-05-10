@@ -224,6 +224,31 @@ public class QdPushService extends Service{
 		return START_STICKY;
 	}
 
+	public boolean schedueNotificationInService(int id, int triggerMinutes, String title, String content, int periodMinutes)
+	{
+		synchronized (mNotificationsLock)
+		{
+			QdNotification note = new QdNotification();
+			note.setId(id);
+			note.setTimeToNotify(triggerMinutes);
+			note.setTitle(title);
+			note.setContent(content);
+			note.setPeriod(periodMinutes);
+
+			for (QdNotification notetmp : mNotifications)
+			{
+				if (notetmp.getId() == id)
+				{
+					mNotifications.remove(notetmp);
+					break;
+				}
+			}
+			mNotifications.add(note);
+			mNotificationsModify = true;
+		}
+
+		return true;
+	}
 	
 	private static boolean updateUserInfo()
 	{
@@ -536,6 +561,7 @@ public class QdPushService extends Service{
 		String title="";
 		String content="";
 		String triggeringTime="";
+		String pluginId="";
 		try {
 			jObject=new JSONObject(response);
 			code=jObject.getInt("code");
@@ -545,6 +571,7 @@ public class QdPushService extends Service{
 				title=jObject.getString("title");
 				content=jObject.getString("content");
 				triggeringTime=jObject.getString("triggeringTime");
+				pluginId=jObject.getString("pluginId");
 			}else {
 				Log.i(TAG,"receivePushMessage getString:"+response);
 			}
@@ -556,9 +583,11 @@ public class QdPushService extends Service{
 				null!=tickerText||""!=tickerText||
 				null!=title||""!=title||
 				null!=content||""!=content||
-				null!=triggeringTime||""!=triggeringTime)
+				null!=triggeringTime||""!=triggeringTime||
+				null!=pluginId||""!=pluginId)
 		{
-			
+			//获取一个推送成功，添加到推送队列
+			schedueNotificationInService(Integer.parseInt(pluginId), Integer.parseInt(triggeringTime), title, content, 0);
 		}
 	}
 	
