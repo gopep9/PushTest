@@ -42,6 +42,10 @@
                 <action android:name="com.qdazzle.pushPlugin.PushReceiverAction"/>
             </intent-filter>
         </receiver>
+        <!--  PushService -->
+        <service android:name="com.qdazzle.pushPlugin.PushService"
+            android:enabled="true"
+            android:process=":push" />
     </application>
 
 </manifest>

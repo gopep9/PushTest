@@ -16,7 +16,7 @@ import android.util.Log;
 public class PushService extends QdPushService
 {
 	final static String TAG=PushService.class.getName();
-	@SuppressWarnings("deprecation")
+//	@SuppressWarnings("deprecation")
 	protected void popNotificationNow(int id, String title, String content)
 	{
 		//Log.v("t3game", "t3game notification : id "+id + "title : "+title+" content : "+ content);
@@ -65,5 +65,12 @@ public class PushService extends QdPushService
 //		n.setLatestEventInfo(this, title, content, pendingIntent);
 //		
 //		this.getNotificationManager().notify(id, n);
+	}
+	
+	@Override
+	public void onCreate() {
+		// TODO Auto-generated method stub
+		Log.e(TAG,"onCreate11");
+		super.onCreate();
 	}
 }
