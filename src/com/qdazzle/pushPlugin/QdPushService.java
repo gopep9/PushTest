@@ -76,7 +76,7 @@ public class QdPushService extends Service{
 		}
 		
 		@Override
-		public boolean unscheduleAllnotifications() throws RemoteException {
+		public boolean unscheduleAllNotifications() throws RemoteException {
 			// TODO Auto-generated method stub
 			synchronized (mNotificationsLock)
 			{
@@ -102,7 +102,7 @@ public class QdPushService extends Service{
 		
 		//public boolean schedueNotification(int id, int delayMinutes, String title, String content, int periodMinutes)
 		@Override
-		public boolean schedueNotification(int id, int triggerMinutes, String title, String content, int periodMinutes)
+		public boolean scheduleNotification(int id, int triggerMinutes, String title, String content, int periodMinutes)
 				throws RemoteException {
 			// TODO Auto-generated method stub
 			synchronized (mNotificationsLock)
@@ -171,6 +171,7 @@ public class QdPushService extends Service{
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId)
 	{
+		Log.i(TAG, "onStartCommand1");
 		//停止以后要怎么恢复？
 		if (mIsInited == false && mPushServiceThread == null)
 		{
@@ -224,7 +225,7 @@ public class QdPushService extends Service{
 		return START_STICKY;
 	}
 
-	public boolean schedueNotificationInService(int id, int triggerMinutes, String title, String content, int periodMinutes)
+	public boolean scheduleNotificationInService(int id, int triggerMinutes, String title, String content, int periodMinutes)
 	{
 		synchronized (mNotificationsLock)
 		{
@@ -268,6 +269,7 @@ public class QdPushService extends Service{
 	public void onCreate()
 	{
 		super.onCreate();
+		Log.i(TAG,"onCreate1");
 	}
 	
 	protected void popNotificationNow(int id,String title,String content)
@@ -587,7 +589,7 @@ public class QdPushService extends Service{
 				null!=pluginId||""!=pluginId)
 		{
 			//获取一个推送成功，添加到推送队列
-			schedueNotificationInService(Integer.parseInt(pluginId), Integer.parseInt(triggeringTime), title, content, 0);
+			scheduleNotificationInService(Integer.parseInt(pluginId), Integer.parseInt(triggeringTime), title, content, 0);
 		}
 	}
 	

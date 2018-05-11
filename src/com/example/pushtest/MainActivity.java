@@ -9,17 +9,24 @@ import java.net.URL;
 
 import org.json.JSONObject;
 
+import com.qdazzle.pushPlugin.NotificationHelper;
+import com.qdazzle.pushPlugin.PushService;
+import com.qdazzle.pushPlugin.aidl.INotificationService;
+
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,6 +40,7 @@ public class MainActivity extends Activity implements OnClickListener{
 	private Button btnStart;
 	private Button btnStop;
 	private Button btnDelay;
+	private Button btnStartService;
 	private TextView messageText;
 	final static String TAG=MainActivity.class.getName();
 	@Override
@@ -46,6 +54,8 @@ public class MainActivity extends Activity implements OnClickListener{
 		btnStart.setOnClickListener(this);
 		btnDelay=(Button) findViewById(ResUtil.getId(this, "btnDelay"));
 		btnDelay.setOnClickListener(this);
+		btnStartService=(Button) findViewById(ResUtil.getId(this, "btnStartServer"));
+		btnStartService.setOnClickListener(this);
 		messageText=(TextView)findViewById(ResUtil.getId(this, "messageText"));
 		
 	}
@@ -55,6 +65,9 @@ public class MainActivity extends Activity implements OnClickListener{
 	private Notification messageNotification=null;
 	private NotificationManager messageNotificationManager=null;
 	private PendingIntent messagePendingIntent=null;
+	
+//	private static INotificationService mNotificationService=null;
+	private static ServiceConnection mPushServiceConnection;
 	@Override
 	public void onClick(View v) {
 		int id=v.getId();
@@ -66,8 +79,40 @@ public class MainActivity extends Activity implements OnClickListener{
 		{
 			setAlarm("receive message", System.currentTimeMillis()/1000+10);
 		}
+		else if(id==ResUtil.getId(this, "btnStartServer"))
+		{
+			Log.e(TAG,"btnStartServer");
+			//启动服务
+			Intent startPushServiceIntent=new Intent(this,PushService.class);
+			startPushServiceIntent.putExtra("Name", MainActivity.class.getPackage().getName());
+			startService(startPushServiceIntent);
+			
+			mPushServiceConnection=new ServiceConnection() {
+				
+				@Override
+				public void onServiceDisconnected(ComponentName name) {
+					// TODO Auto-generated method stub
+//					mNotificationService=INotificationService.Stub.asInterface(null);
+					Log.e("TAG","onServiceDisconnected");
+					NotificationHelper.setNotificationService(name, null);
+				}
+				
+				@Override
+				public void onServiceConnected(ComponentName name, IBinder service) {
+					// TODO Auto-generated method stub
+//					mNotificationService.setPushPollRequestUrlString("172.25.0.1", 80, 90155, 10052, 1);
+					Log.e("TAG","onServiceConnected");
+					NotificationHelper.setNotificationService(name, service);
+					NotificationHelper.setForgroundProcName("com.example.pushtest");
+				}
+			};
+			bindService(startPushServiceIntent, mPushServiceConnection, BIND_AUTO_CREATE);
+		}
+		
 	}
 	private int noticeCount=0;//用于区分不同的PendingIntent，在新生成一个PendingIntent以后后加1
+	
+	//使用广播，通知PushReceiver推送一条通知
 	private void setAlarm(String noticeStr,long timestamp)
 	{
 		long longTime=timestamp*1000;
@@ -90,6 +135,7 @@ public class MainActivity extends Activity implements OnClickListener{
 		}
 	}
 	
+	//和服务器通信，获得推送的消息并且马上进行推送
 	private String getPushMessage()
 	{
 		String str="a";
