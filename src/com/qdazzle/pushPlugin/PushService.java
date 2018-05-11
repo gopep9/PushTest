@@ -21,6 +21,7 @@ public class PushService extends QdPushService
 	{
 		//Log.v("t3game", "t3game notification : id "+id + "title : "+title+" content : "+ content);
 			
+		Log.e(TAG,"popNotificationNow");
 		Notification messageNotification = new Notification();
 		//暂时使用R.xxx索引资源
 		messageNotification.icon=R.drawable.ic_launcher;

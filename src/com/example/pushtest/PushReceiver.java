@@ -18,6 +18,7 @@ public class PushReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		// TODO Auto-generated method stub
+		Log.e(TAG,"PushReceiver get pushmessage");
 		int noticeId=intent.getIntExtra("noticeId", 0);
 		String noticeStr=intent.getStringExtra("noticeStr");
 		messageNotification = new Notification();

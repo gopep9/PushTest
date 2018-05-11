@@ -41,6 +41,7 @@ public class MainActivity extends Activity implements OnClickListener{
 	private Button btnStop;
 	private Button btnDelay;
 	private Button btnStartService;
+	private Button btnPushThroughServer;
 	private TextView messageText;
 	final static String TAG=MainActivity.class.getName();
 	@Override
@@ -56,6 +57,8 @@ public class MainActivity extends Activity implements OnClickListener{
 		btnDelay.setOnClickListener(this);
 		btnStartService=(Button) findViewById(ResUtil.getId(this, "btnStartServer"));
 		btnStartService.setOnClickListener(this);
+		btnPushThroughServer=(Button) findViewById(ResUtil.getId(this, "btnPushThroughServer"));
+		btnPushThroughServer.setOnClickListener(this);
 		messageText=(TextView)findViewById(ResUtil.getId(this, "messageText"));
 		
 	}
@@ -108,7 +111,10 @@ public class MainActivity extends Activity implements OnClickListener{
 			};
 			bindService(startPushServiceIntent, mPushServiceConnection, BIND_AUTO_CREATE);
 		}
-		
+		else if(id==ResUtil.getId(this, "btnPushThroughServer"))
+		{
+			NotificationHelper.scheduleNotification(2, (int)(System.currentTimeMillis()/1000/60)+1, "test1pushtitle", "test1pushcontent", 0);
+		}
 	}
 	private int noticeCount=0;//用于区分不同的PendingIntent，在新生成一个PendingIntent以后后加1
 	

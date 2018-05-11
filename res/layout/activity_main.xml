@@ -18,6 +18,11 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="开启服务"/>
+    <Button 
+        android:id="@+id/btnPushThroughServer"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="通过service进行推送"/>
     <TextView
         android:id="@+id/messageText"
         android:layout_width="fill_parent"
