@@ -211,7 +211,6 @@ public class QdPushService extends Service{
 					{
 						if(updateUserInfo())
 						{
-							saveUserInfoToPreference();
 						}
 						
 						// if our game is on foreground.
@@ -240,8 +239,6 @@ public class QdPushService extends Service{
 							e.printStackTrace();
 						}
 					}
-					saveUserInfoToPreference();
-					saveNotifDataToPreference();
 				}
 			});
 
@@ -384,88 +381,6 @@ public class QdPushService extends Service{
 			{
 				objectOut.writeObject(mNotifications);
 				mNotificationsModify = false;
-			}
-			fileOut.getFD().sync();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		finally
-		{
-			if (objectOut != null)
-			{
-				try
-				{
-					objectOut.close();
-				}
-				catch (IOException e)
-				{
-
-				}
-			}
-		}
-	}
-
-	public void loadUserInfoFromPreference()
-	{
-		ObjectInputStream objectIn = null;
-		Object object = null;
-		try
-		{
-			FileInputStream fileIn = getApplicationContext().openFileInput(
-					USER_PREF_FILE_NAME);
-			objectIn = new ObjectInputStream(fileIn);
-			object = objectIn.readObject();
-
-			if (object != null)
-			{
-				mUserInfo = (QdUserInfo) object;
-				mUserInfoNeedUpdate = true;
-			}
-			else
-			{
-				Log.d(TAG, "load userinfo failed.");
-			}
-		}
-		catch (FileNotFoundException e)
-		{
-			Log.d(TAG, "userinfo not exist yet.");
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		catch (ClassNotFoundException e)
-		{
-			e.printStackTrace();
-		}
-		finally
-		{
-			if (objectIn != null)
-			{
-				try
-				{
-					objectIn.close();
-				}
-				catch (IOException e)
-				{
-				}
-			}
-		}
-	}
-
-	public void saveUserInfoToPreference()
-	{
-		ObjectOutputStream objectOut = null;
-		try
-		{
-			FileOutputStream fileOut = getApplicationContext().openFileOutput(
-					USER_PREF_FILE_NAME, MODE_PRIVATE);
-			objectOut = new ObjectOutputStream(fileOut);
-			if (mUserInfo != null)
-			{
-				objectOut.writeObject(mUserInfo);
 			}
 			fileOut.getFD().sync();
 		}
