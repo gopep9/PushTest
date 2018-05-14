@@ -184,6 +184,7 @@ public class QdPushService extends Service{
 			{
 				@Override
 				public void run() {
+					Log.i(TAG,"the new thread start run and mKeepWorking is "+mKeepWorking);
 					while(mKeepWorking)
 					{
 						if(updateUserInfo())
@@ -211,6 +212,8 @@ public class QdPushService extends Service{
 							Thread.sleep(3000);
 						} catch (Exception e) {
 							// TODO: handle exception
+							Log.e(TAG,"the new thread get a exception is "+e.toString());
+							e.printStackTrace();
 						}
 					}
 					saveUserInfoToPreference();
@@ -269,9 +272,9 @@ public class QdPushService extends Service{
 	public void onCreate()
 	{
 		super.onCreate();
-		Log.i(TAG,"onCreate1");
+		Log.i(TAG,"onCreate");
 	}
-	
+		
 	protected void popNotificationNow(int id,String title,String content)
 	{
 	}
@@ -284,6 +287,8 @@ public class QdPushService extends Service{
 	@Override
 	public void onDestroy()
 	{
+		super.onDestroy();
+		Log.i(TAG,"onDestroy");
 		mKeepWorking = false;
 		if (mPushServerSocket != null)
 		{

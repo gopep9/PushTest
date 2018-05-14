@@ -71,6 +71,7 @@ public class MainActivity extends Activity implements OnClickListener{
 	
 //	private static INotificationService mNotificationService=null;
 	private static ServiceConnection mPushServiceConnection;
+	Intent startPushServiceIntent;
 	@Override
 	public void onClick(View v) {
 		int id=v.getId();
@@ -86,17 +87,21 @@ public class MainActivity extends Activity implements OnClickListener{
 		{
 			Log.e(TAG,"btnStartServer");
 			//启动服务
-			Intent startPushServiceIntent=new Intent(this,PushService.class);
+			startPushServiceIntent=new Intent(this,PushService.class);
 			startPushServiceIntent.putExtra("Name", MainActivity.class.getPackage().getName());
+			
 			startService(startPushServiceIntent);
 			
+		}
+		else if(id==ResUtil.getId(this, "btnPushThroughServer"))
+		{
 			mPushServiceConnection=new ServiceConnection() {
 				
 				@Override
 				public void onServiceDisconnected(ComponentName name) {
 					// TODO Auto-generated method stub
 //					mNotificationService=INotificationService.Stub.asInterface(null);
-					Log.e("TAG","onServiceDisconnected");
+					Log.e(TAG,"onServiceDisconnected");
 					NotificationHelper.setNotificationService(name, null);
 				}
 				
@@ -104,16 +109,15 @@ public class MainActivity extends Activity implements OnClickListener{
 				public void onServiceConnected(ComponentName name, IBinder service) {
 					// TODO Auto-generated method stub
 //					mNotificationService.setPushPollRequestUrlString("172.25.0.1", 80, 90155, 10052, 1);
-					Log.e("TAG","onServiceConnected");
+					Log.e(TAG,"onServiceConnected");
 					NotificationHelper.setNotificationService(name, service);
 					NotificationHelper.setForgroundProcName("com.example.pushtest");
+					NotificationHelper.setPushPollRequestUrlString("http://172.25.0.1/pushMessage.php", 80, 90155, 10052, 1);
 				}
 			};
 			bindService(startPushServiceIntent, mPushServiceConnection, BIND_AUTO_CREATE);
-		}
-		else if(id==ResUtil.getId(this, "btnPushThroughServer"))
-		{
-			NotificationHelper.scheduleNotification(2, (int)(System.currentTimeMillis()/1000/60)+1, "test1pushtitle", "test1pushcontent", 0);
+
+			NotificationHelper.scheduleNotification(2, (int)(System.currentTimeMillis()/1000/60), "test1pushtitle", "test1pushcontent", 0);
 		}
 	}
 	private int noticeCount=0;//用于区分不同的PendingIntent，在新生成一个PendingIntent以后后加1
