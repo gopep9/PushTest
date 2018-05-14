@@ -1,6 +1,7 @@
 package com.qdazzle.pushPlugin;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -9,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
 import java.net.DatagramSocket;
 import java.net.HttpURLConnection;
 import java.net.SocketException;
@@ -52,6 +54,7 @@ public class QdPushService extends Service{
 	
 	private static final String NOTIF_PREF_FILE_NAME = "NotifPrefFile";
 	private static final String USER_PREF_FILE_NAME = "UserPrefFile";
+	private static final String LAST_NOTIFICATION_ID_FILE_NAME = "NotificationIdFile";
 
 	private static final int OUT_OF_DATE_VAL = 60;
 
@@ -173,6 +176,7 @@ public class QdPushService extends Service{
 	{
 		Log.i(TAG, "onStartCommand1");
 		
+		//在初始化的时候接收intent传过来的数据
 		String url=intent.getStringExtra("url");
 		int port=intent.getIntExtra("port", 80);
 		String platformId=intent.getStringExtra("platformId");
@@ -184,6 +188,8 @@ public class QdPushService extends Service{
 		mTempUserInfo.setPlatformId(platformId);
 		mTempUserInfo.setChannelId(channelId);
 		mTempUserInfo.setPushPackId(pushPackId);
+		
+		
 		//停止以后要怎么恢复？
 		if (mIsInited == false && mPushServiceThread == null)
 		{
@@ -479,6 +485,65 @@ public class QdPushService extends Service{
 		}
 	}
 	
+	//设置最后的推送id，低于推送id的不添加入推送队列中
+	public void saveLastPushId(int lastPushId)
+	{
+		String strLastPushId=String.valueOf(lastPushId);
+//		ObjectOutputStream objectOut=null;
+		FileOutputStream fileOut=null;
+		BufferedWriter writer=null;
+		try {
+			fileOut=getApplicationContext().openFileOutput(LAST_NOTIFICATION_ID_FILE_NAME, MODE_PRIVATE);
+			writer=new BufferedWriter(new OutputStreamWriter(fileOut));
+			writer.write(strLastPushId);
+//			objectOut=new ObjectOutputStream(fileOut);
+//			objectOut.writeObject(strLastPushId);
+			
+			fileOut.getFD().sync();
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		finally
+		{
+			if(writer!=null)
+			{
+				try
+				{
+					writer.close();
+				}
+				catch (Exception e) {
+					// TODO: handle exception
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	public int loadLastPushId()
+	{
+		FileInputStream inputStream=null;
+		BufferedReader reader=null;
+		String strLastPushId="";
+		try {
+			inputStream=getApplicationContext().openFileInput(LAST_NOTIFICATION_ID_FILE_NAME);
+			reader=new BufferedReader(new InputStreamReader(inputStream));
+			strLastPushId=reader.readLine();
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}finally {
+			if(reader!=null) {
+				try {
+					reader.close();
+				}catch(IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return Integer.valueOf(strLastPushId);
+	}
+	
 	private boolean checkForground()
 	{
 		/*
@@ -571,7 +636,7 @@ public class QdPushService extends Service{
 	{
 		String response="";
 	
-			response=getServerPushMessage(secsToWait, hasForground, mTempUserInfo.getPushUrl(), mTempUserInfo.getPushPort());
+		response=getServerPushMessage(secsToWait, hasForground, mUserInfo.getPushUrl(), mUserInfo.getPushPort());
 		if(null==response||response=="")
 		{
 			return;
@@ -608,6 +673,7 @@ public class QdPushService extends Service{
 				null!=pluginId||""!=pluginId)
 		{
 			//获取一个推送成功，添加到推送队列
+			
 			scheduleNotificationInService(Integer.parseInt(pluginId), Integer.parseInt(triggeringTime), title, content, 0);
 		}
 	}
