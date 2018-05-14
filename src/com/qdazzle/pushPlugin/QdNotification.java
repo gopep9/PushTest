@@ -1,6 +1,7 @@
 package com.qdazzle.pushPlugin;
 
 import java.io.Serializable;
+import java.net.ContentHandler;
 //存储推送的信息，可以写到本地
 public class QdNotification implements Comparable<Object>,Serializable
 {
@@ -103,6 +104,14 @@ public class QdNotification implements Comparable<Object>,Serializable
 	public void setPeriod(int mPeriod)
 	{
 		this.mPeriod = mPeriod;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "mid:"+mId+" mTimeToNotify:"+mTimeToNotify+
+				" mTitle:"+mTitle+" mContent:"+mContent+
+				" mPeriod:"+mPeriod;
 	}
 
 }

@@ -215,13 +215,15 @@ public class QdPushService extends Service{
 						{
 							checkServerPush(60 / 3, hasForeGround);
 						}
-
+						Log.i(TAG,"current minute:"+System.currentTimeMillis()/1000/60);
+						Log.i(TAG,"current mNotifications:"+mNotifications);
 						/*
 						 * check local push time every other minute
 						 */
 						checkLocalPush(hasForeGround);
 						try {
-							Thread.sleep(3000);
+							//间隔5秒
+							Thread.sleep(5000);
 						} catch (Exception e) {
 							// TODO: handle exception
 							Log.e(TAG,"the new thread get a exception is "+e.toString());
