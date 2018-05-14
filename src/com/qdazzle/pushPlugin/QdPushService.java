@@ -31,6 +31,7 @@ import com.qdazzle.pushPlugin.aidl.INotificationService;
 
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
@@ -60,7 +61,7 @@ public class QdPushService extends Service{
 	private static volatile boolean mIsInited=false;
 	
 	private static final String NOTIF_PREF_FILE_NAME = "NotifPrefFile";
-	private static final String USER_PREF_FILE_NAME = "UserPrefFile";
+//	private static final String USER_PREF_FILE_NAME = "UserPrefFile";
 	private static final String LAST_NOTIFICATION_ID_FILE_NAME = "NotificationIdFile";
 
 	private static final int OUT_OF_DATE_VAL = 60;
@@ -211,7 +212,6 @@ public class QdPushService extends Service{
 				public void run() {
 					Log.i(TAG,"the new thread start run and mKeepWorking is "+mKeepWorking);
 					loadNotifDataFromPreference();
-					lastPushId=loadLastPushId();
 					while(mKeepWorking)
 					{
 						if(updateUserInfo())
@@ -343,7 +343,13 @@ public class QdPushService extends Service{
 					int tmpMaxPushId=0;
 					Iterator<QdNotification>it=mNotifications.iterator();
 					while(it.hasNext()) {
-						int pushId=it.next().getId();
+						QdNotification notification=it.next();
+						//去掉过期的推送
+						if(notification.getTimeToNotify()<System.currentTimeMillis()/1000/60)
+						{
+							mNotifications.remove(notification);
+						}
+						int pushId=notification.getId();
 						if(tmpMaxPushId<pushId)
 						{
 							tmpMaxPushId=pushId;
@@ -419,64 +425,65 @@ public class QdPushService extends Service{
 		}
 	}
 	
-	//设置最后的推送id，低于推送id的不添加入推送队列中
-	public void saveLastPushId(int lastPushId)
-	{
-		String strLastPushId=String.valueOf(lastPushId);
-//		ObjectOutputStream objectOut=null;
-		FileOutputStream fileOut=null;
-		BufferedWriter writer=null;
-		try {
-			fileOut=getApplicationContext().openFileOutput(LAST_NOTIFICATION_ID_FILE_NAME, MODE_PRIVATE);
-			writer=new BufferedWriter(new OutputStreamWriter(fileOut));
-			writer.write(strLastPushId);
-//			objectOut=new ObjectOutputStream(fileOut);
-//			objectOut.writeObject(strLastPushId);
-			
-			fileOut.getFD().sync();
-		}catch (Exception e) {
-			// TODO: handle exception
-			e.printStackTrace();
-		}
-		finally
-		{
-			if(writer!=null)
-			{
-				try
-				{
-					writer.close();
-				}
-				catch (Exception e) {
-					// TODO: handle exception
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-	
-	public int loadLastPushId()
-	{
-		FileInputStream inputStream=null;
-		BufferedReader reader=null;
-		String strLastPushId="";
-		try {
-			inputStream=getApplicationContext().openFileInput(LAST_NOTIFICATION_ID_FILE_NAME);
-			reader=new BufferedReader(new InputStreamReader(inputStream));
-			strLastPushId=reader.readLine();
-		}catch (Exception e) {
-			// TODO: handle exception
-			e.printStackTrace();
-		}finally {
-			if(reader!=null) {
-				try {
-					reader.close();
-				}catch(IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-		return Integer.valueOf(strLastPushId);
-	}
+//	//设置最后的推送id，低于推送id的不添加入推送队列中
+//	public void saveLastPushId(int lastPushId)
+//	{
+//		String strLastPushId=String.valueOf(lastPushId);
+////		ObjectOutputStream objectOut=null;
+//		FileOutputStream fileOut=null;
+//		BufferedWriter writer=null;
+//		try {
+//			fileOut=getApplicationContext().openFileOutput(LAST_NOTIFICATION_ID_FILE_NAME, MODE_PRIVATE);
+//			writer=new BufferedWriter(new OutputStreamWriter(fileOut));
+//			writer.write(strLastPushId);
+////			objectOut=new ObjectOutputStream(fileOut);
+////			objectOut.writeObject(strLastPushId);
+//			
+//			fileOut.getFD().sync();
+//		}catch (Exception e) {
+//			// TODO: handle exception
+//			e.printStackTrace();
+//		}
+//		finally
+//		{
+//			if(writer!=null)
+//			{
+//				try
+//				{
+//					writer.close();
+//				}
+//				catch (Exception e) {
+//					// TODO: handle exception
+//					e.printStackTrace();
+//				}
+//			}
+//		}
+//	}
+//	
+//	//可以不用这个接口了，直接检查mnotification文件中最低的pushid
+//	public int loadLastPushId()
+//	{
+//		FileInputStream inputStream=null;
+//		BufferedReader reader=null;
+//		String strLastPushId="";
+//		try {
+//			inputStream=getApplicationContext().openFileInput(LAST_NOTIFICATION_ID_FILE_NAME);
+//			reader=new BufferedReader(new InputStreamReader(inputStream));
+//			strLastPushId=reader.readLine();
+//		}catch (Exception e) {
+//			// TODO: handle exception
+//			e.printStackTrace();
+//		}finally {
+//			if(reader!=null) {
+//				try {
+//					reader.close();
+//				}catch(IOException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		}
+//		return Integer.valueOf(strLastPushId);
+//	}
 	
 	private boolean checkForground()
 	{
@@ -617,6 +624,8 @@ public class QdPushService extends Service{
 				if(tmpMaxPushId!=0)
 				{
 					lastPushId=tmpMaxPushId;
+					//有更改的，要更新一下本地文件
+					saveNotifDataToPreference();
 				}
 			}else {
 				Log.i(TAG,"receivePushMessage getString:"+response);
