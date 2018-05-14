@@ -16,6 +16,7 @@ import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -39,11 +40,13 @@ import android.util.Log;
 
 public class QdPushService extends Service{
 
+	private static final String TAG = QdPushService.class.getName();
+	
 	private static QdUserInfo mUserInfo = null;
 	private static QdUserInfo mTempUserInfo = null;
 	private static SortedSet<QdNotification> mNotifications = new TreeSet<QdNotification>();
 	private static String mForgroundProcName="";
-	private static final String TAG = QdPushService.class.getName();
+	private static int lastPushId=0;
 	
 	private static DatagramSocket mPushServerSocket=null;
 	private static volatile Thread mPushServiceThread=null;
@@ -207,6 +210,8 @@ public class QdPushService extends Service{
 				@Override
 				public void run() {
 					Log.i(TAG,"the new thread start run and mKeepWorking is "+mKeepWorking);
+					loadNotifDataFromPreference();
+					lastPushId=loadLastPushId();
 					while(mKeepWorking)
 					{
 						if(updateUserInfo())
@@ -335,6 +340,16 @@ public class QdPushService extends Service{
 				if (object != null)
 				{
 					mNotifications = (SortedSet<QdNotification>) object;
+					int tmpMaxPushId=0;
+					Iterator<QdNotification>it=mNotifications.iterator();
+					while(it.hasNext()) {
+						int pushId=it.next().getId();
+						if(tmpMaxPushId<pushId)
+						{
+							tmpMaxPushId=pushId;
+						}
+					}
+					lastPushId=tmpMaxPushId;
 				}
 				else
 				{
@@ -578,7 +593,7 @@ public class QdPushService extends Service{
 //				triggeringTime=jObject.getString("triggeringTime");
 //				pluginId=jObject.getString("pluginId");
 				JSONArray jsonArrays=jObject.getJSONArray("pushMessageArray");
-				
+				int tmpMaxPushId=0;
 				for(int i=0;;i++)
 				{
 					JSONObject jsonArray=jsonArrays.getJSONObject(i);
@@ -591,9 +606,17 @@ public class QdPushService extends Service{
 					content=jsonArray.getString("content");
 					triggeringTime=jsonArray.getInt("triggeringTime");
 					pluginId=jsonArray.getInt("pluginId");
-					if(triggeringTime>System.currentTimeMillis()/1000/60) {
+					if((triggeringTime>System.currentTimeMillis()/1000/60)&&(pluginId>lastPushId)) {
 						scheduleNotificationInService(pluginId, triggeringTime, title, content, 0);
+						if(tmpMaxPushId<pluginId)
+						{
+							tmpMaxPushId=pluginId;
+						}
 					}
+				}
+				if(tmpMaxPushId!=0)
+				{
+					lastPushId=tmpMaxPushId;
 				}
 			}else {
 				Log.i(TAG,"receivePushMessage getString:"+response);
