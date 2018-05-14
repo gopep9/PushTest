@@ -20,7 +20,11 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+//import org.json.JSONArray;
+//import org.json.JSONObject;
 
 import com.qdazzle.pushPlugin.aidl.INotificationService;
 
@@ -188,7 +192,7 @@ public class QdPushService extends Service{
 		mTempUserInfo.setPlatformId(platformId);
 		mTempUserInfo.setChannelId(channelId);
 		mTempUserInfo.setPushPackId(pushPackId);
-		
+		mUserInfoNeedUpdate = true;
 		
 		//停止以后要怎么恢复？
 		if (mIsInited == false && mPushServiceThread == null)
@@ -229,7 +233,7 @@ public class QdPushService extends Service{
 						checkLocalPush(hasForeGround);
 						try {
 							//间隔5秒
-							Thread.sleep(5000);
+							Thread.sleep(10000);
 						} catch (Exception e) {
 							// TODO: handle exception
 							Log.e(TAG,"the new thread get a exception is "+e.toString());
@@ -646,18 +650,36 @@ public class QdPushService extends Service{
 		String tickerText="";
 		String title="";
 		String content="";
-		String triggeringTime="";
-		String pluginId="";
+		int triggeringTime=0;
+		int pluginId=0;
 		try {
 			jObject=new JSONObject(response);
 			code=jObject.getInt("code");
 			if(0==code)
 			{
-				tickerText=jObject.getString("tickerText");
-				title=jObject.getString("title");
-				content=jObject.getString("content");
-				triggeringTime=jObject.getString("triggeringTime");
-				pluginId=jObject.getString("pluginId");
+//				tickerText=jObject.getString("tickerText");
+//				title=jObject.getString("title");
+//				content=jObject.getString("content");
+//				triggeringTime=jObject.getString("triggeringTime");
+//				pluginId=jObject.getString("pluginId");
+				JSONArray jsonArrays=jObject.getJSONArray("pushMessageArray");
+				
+				for(int i=0;;i++)
+				{
+					JSONObject jsonArray=jsonArrays.getJSONObject(i);
+					if(jsonArray==null)
+					{
+						break;
+					}
+					tickerText=jsonArray.getString("tickerText");
+					title=jsonArray.getString("title");
+					content=jsonArray.getString("content");
+					triggeringTime=jsonArray.getInt("triggeringTime");
+					pluginId=jsonArray.getInt("pluginId");
+					if(triggeringTime>System.currentTimeMillis()/1000/60) {
+						scheduleNotificationInService(pluginId, triggeringTime, title, content, 0);
+					}
+				}
 			}else {
 				Log.i(TAG,"receivePushMessage getString:"+response);
 			}
@@ -665,19 +687,19 @@ public class QdPushService extends Service{
 			Log.e(TAG, "receivePushMessage exception:"+e.toString());
 			return;
 		}
-		if(0==code||
-				null!=tickerText||""!=tickerText||
-				null!=title||""!=title||
-				null!=content||""!=content||
-				null!=triggeringTime||""!=triggeringTime||
-				null!=pluginId||""!=pluginId)
-		{
-			//获取一个推送成功，添加到推送队列
-			int LongTriggeringTime=Integer.parseInt(triggeringTime);
-			if(LongTriggeringTime>System.currentTimeMillis()/1000/60) {
-				scheduleNotificationInService(Integer.parseInt(pluginId), Integer.parseInt(triggeringTime), title, content, 0);
-			}
-		}
+//		if(0==code||
+//				null!=tickerText||""!=tickerText||
+//				null!=title||""!=title||
+//				null!=content||""!=content||
+//				null!=triggeringTime||""!=triggeringTime||
+//				null!=pluginId||""!=pluginId)
+//		{
+//			//获取一个推送成功，添加到推送队列
+//			int LongTriggeringTime=Integer.parseInt(triggeringTime);
+//			if(LongTriggeringTime>System.currentTimeMillis()/1000/60) {
+//				scheduleNotificationInService(Integer.parseInt(pluginId), Integer.parseInt(triggeringTime), title, content, 0);
+//			}
+//		}
 	}
 	
 	private String getServerPushMessage(int secsToWait,boolean hasForground,String urlStr,int port)
