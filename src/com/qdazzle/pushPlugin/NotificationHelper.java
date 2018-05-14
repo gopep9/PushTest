@@ -6,7 +6,7 @@ import android.content.ComponentName;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
-
+//用于在外部提供接口，可能没有机会用到（直接用服务向服务器请求推送计划，不需要外部的干预）
 public class NotificationHelper {
 	private static final String TAG = NotificationHelper.class.getName();
 
@@ -105,7 +105,7 @@ public class NotificationHelper {
 	}
 
 	public static boolean setPushPollRequestUrlString(
-			String url, int port, int platformId, int channelId, int pushPackId)
+			String url, int port, String platformId, String channelId, String pushPackId)
 	{
 		synchronized (mNotiServiceLock)
 		{

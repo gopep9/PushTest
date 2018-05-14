@@ -130,7 +130,7 @@ public class QdPushService extends Service{
 		}
 
 		@Override
-		public boolean setPushPollRequestUrlString(String url, int port, int platformId, int channelId, int pushPackId)
+		public boolean setPushPollRequestUrlString(String url, int port, String platformId, String channelId, String pushPackId)
 				throws RemoteException {
 			// TODO Auto-generated method stub
 			if(mPushServerSocket==null)
@@ -172,6 +172,18 @@ public class QdPushService extends Service{
 	public int onStartCommand(Intent intent, int flags, int startId)
 	{
 		Log.i(TAG, "onStartCommand1");
+		
+		String url=intent.getStringExtra("url");
+		int port=intent.getIntExtra("port", 80);
+		String platformId=intent.getStringExtra("platformId");
+		String channelId=intent.getStringExtra("channelId");
+		String pushPackId=intent.getStringExtra("pushPackId");
+		mTempUserInfo=new QdUserInfo();
+		mTempUserInfo.setPushUrl(url);
+		mTempUserInfo.setPushPort(port);
+		mTempUserInfo.setPlatformId(platformId);
+		mTempUserInfo.setChannelId(channelId);
+		mTempUserInfo.setPushPackId(pushPackId);
 		//停止以后要怎么恢复？
 		if (mIsInited == false && mPushServiceThread == null)
 		{

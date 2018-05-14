@@ -83,13 +83,18 @@ public class MainActivity extends Activity implements OnClickListener{
 		{
 			setAlarm("receive message", System.currentTimeMillis()/1000+10);
 		}
+		//开启服务
 		else if(id==ResUtil.getId(this, "btnStartServer"))
 		{
 			Log.e(TAG,"btnStartServer");
 			//启动服务
 			startPushServiceIntent=new Intent(this,PushService.class);
 			startPushServiceIntent.putExtra("Name", MainActivity.class.getPackage().getName());
-			
+			startPushServiceIntent.putExtra("url", "http://172.25.0.1/pushMessage.php");
+			startPushServiceIntent.putExtra("port", 80);
+			startPushServiceIntent.putExtra("platformId", "90155");
+			startPushServiceIntent.putExtra("channelId", "10052");
+			startPushServiceIntent.putExtra("pushPackId", "1");
 			startService(startPushServiceIntent);
 			
 		}
@@ -112,7 +117,7 @@ public class MainActivity extends Activity implements OnClickListener{
 					Log.e(TAG,"onServiceConnected");
 					NotificationHelper.setNotificationService(name, service);
 					NotificationHelper.setForgroundProcName("com.example.pushtest");
-					NotificationHelper.setPushPollRequestUrlString("http://172.25.0.1/pushMessage.php", 80, 90155, 10052, 1);
+					NotificationHelper.setPushPollRequestUrlString("http://172.25.0.1/pushMessage.php", 80, "90155", "10052", "1");
 				}
 			};
 			bindService(startPushServiceIntent, mPushServiceConnection, BIND_AUTO_CREATE);

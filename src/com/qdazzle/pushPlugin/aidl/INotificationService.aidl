@@ -6,5 +6,5 @@ interface INotificationService{
 	boolean unscheduleAllNotifications();
 	boolean setForgroundProcName(String procName);
 	void stopNotificationService();
-	boolean setPushPollRequestUrlString(String url,int port, int platformId, int channelId, int pushPackId);
+	boolean setPushPollRequestUrlString(String url,int port, String platformId, String channelId, String pushPackId);
 }
