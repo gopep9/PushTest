@@ -673,8 +673,10 @@ public class QdPushService extends Service{
 				null!=pluginId||""!=pluginId)
 		{
 			//获取一个推送成功，添加到推送队列
-			
-			scheduleNotificationInService(Integer.parseInt(pluginId), Integer.parseInt(triggeringTime), title, content, 0);
+			int LongTriggeringTime=Integer.parseInt(triggeringTime);
+			if(LongTriggeringTime>System.currentTimeMillis()/1000/60) {
+				scheduleNotificationInService(Integer.parseInt(pluginId), Integer.parseInt(triggeringTime), title, content, 0);
+			}
 		}
 	}
 	
