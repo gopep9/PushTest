@@ -90,7 +90,7 @@ public class MainActivity extends Activity implements OnClickListener{
 			//启动服务
 			startPushServiceIntent=new Intent(this,PushService.class);
 			startPushServiceIntent.putExtra("Name", MainActivity.class.getPackage().getName());
-			startPushServiceIntent.putExtra("url", "http://172.25.0.1/AndroidPush/pushMessage.php");
+			startPushServiceIntent.putExtra("url", "http://172.30.50.1/AndroidPush/pushMessage.php");
 			startPushServiceIntent.putExtra("port", 80);
 			startPushServiceIntent.putExtra("platformId", "90155");
 			startPushServiceIntent.putExtra("channelId", "10052");
@@ -113,11 +113,11 @@ public class MainActivity extends Activity implements OnClickListener{
 				@Override
 				public void onServiceConnected(ComponentName name, IBinder service) {
 					// TODO Auto-generated method stub
-//					mNotificationService.setPushPollRequestUrlString("172.25.0.1", 80, 90155, 10052, 1);
+//					mNotificationService.setPushPollRequestUrlString("172.30.50.1", 80, 90155, 10052, 1);
 					Log.e(TAG,"onServiceConnected");
 					NotificationHelper.setNotificationService(name, service);
 					NotificationHelper.setForgroundProcName("com.example.pushtest");
-//					NotificationHelper.setPushPollRequestUrlString("http://172.25.0.1/pushMessage.php", 80, "90155", "10052", "1");
+//					NotificationHelper.setPushPollRequestUrlString("http://172.30.50.1/pushMessage.php", 80, "90155", "10052", "1");
 				}
 			};
 			bindService(startPushServiceIntent, mPushServiceConnection, BIND_AUTO_CREATE);
@@ -162,7 +162,7 @@ public class MainActivity extends Activity implements OnClickListener{
 				try {
 					StringBuilder response=new StringBuilder();
 					BufferedReader reader=null;
-					URL url = new URL("http://172.25.0.1/pushMessage.php");
+					URL url = new URL("http://172.30.50.1/pushMessage.php");
 					HttpURLConnection connection=(HttpURLConnection)url.openConnection();
 					connection.setRequestMethod("GET");
 					connection.setConnectTimeout(8000);
