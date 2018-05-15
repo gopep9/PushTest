@@ -45,20 +45,20 @@ public class QdPushService extends Service{
 	private static final String TAG = QdPushService.class.getName();
 	
 	private static QdUserInfo mUserInfo = null;
-	private static QdUserInfo mTempUserInfo = null;
+//	private static QdUserInfo mTempUserInfo = null;
 	private static SortedSet<QdNotification> mNotifications = new TreeSet<QdNotification>();
 	private static String mForgroundProcName="";
 	private static int lastNotificationId=0;
 	
 	private static DatagramSocket mPushServerSocket=null;
 	private static volatile Thread mPushServiceThread=null;
-	private NotificationManager mNotifManager = null;
+	private static NotificationManager mNotifManager = null;
 
 	private static Object mNotificationsLock=new Object();
-	private static Object mTempUserInfoLock=new Object();
+	private static Object mUserInfoLock=new Object();
 	private static volatile boolean mNotificationsModify=false;
 	private static volatile boolean mKeepWorking = false;
-	private static volatile boolean mUserInfoNeedUpdate = false;
+//	private static volatile boolean mUserInfoNeedUpdate = false;
 	private static volatile boolean mIsInited=false;
 	
 	private static final String NOTIF_PREF_FILE_NAME = "NotifPrefFile";
@@ -164,14 +164,14 @@ public class QdPushService extends Service{
 					return false;
 				}
 			}
-			synchronized (mTempUserInfoLock) {
-				mTempUserInfo = new QdUserInfo();
-				mTempUserInfo.setPushUrl(url);
-				mTempUserInfo.setPushPort(port);
-				mTempUserInfo.setPlatformId(platformId);
-				mTempUserInfo.setChannelId(channelId);
-				mTempUserInfo.setNotificationPackId(NotificationId);
-				mUserInfoNeedUpdate = true;
+			synchronized (mUserInfoLock) {
+				mUserInfo = new QdUserInfo();
+				mUserInfo.setPushUrl(url);
+				mUserInfo.setPushPort(port);
+				mUserInfo.setPlatformId(platformId);
+				mUserInfo.setChannelId(channelId);
+				mUserInfo.setNotificationPackId(NotificationId);
+//				mUserInfoNeedUpdate = true;
 			}
 			return true;
 		}
@@ -196,13 +196,15 @@ public class QdPushService extends Service{
 		String platformId=intent.getStringExtra("platformId");
 		String channelId=intent.getStringExtra("channelId");
 		String NotificationPackId=intent.getStringExtra("NotificationPackId");
-		mTempUserInfo=new QdUserInfo();
-		mTempUserInfo.setPushUrl(url);
-		mTempUserInfo.setPushPort(port);
-		mTempUserInfo.setPlatformId(platformId);
-		mTempUserInfo.setChannelId(channelId);
-		mTempUserInfo.setNotificationPackId(NotificationPackId);
-		mUserInfoNeedUpdate = true;
+		synchronized (mUserInfoLock) {
+			mUserInfo=new QdUserInfo();
+			mUserInfo.setPushUrl(url);
+			mUserInfo.setPushPort(port);
+			mUserInfo.setPlatformId(platformId);
+			mUserInfo.setChannelId(channelId);
+			mUserInfo.setNotificationPackId(NotificationPackId);
+		}
+//		mUserInfoNeedUpdate = true;
 		
 		//停止以后要怎么恢复？
 		if (mIsInited == false && mPushServiceThread == null)
@@ -221,9 +223,9 @@ public class QdPushService extends Service{
 					lastNotificationId=loadLastNotificationId();
 					while(mKeepWorking)
 					{
-						if(updateUserInfo())
-						{
-						}
+//						if(updateUserInfo())
+//						{
+//						}
 						
 						// if our game is on foreground.
 						boolean hasForeGround=false;
@@ -287,19 +289,19 @@ public class QdPushService extends Service{
 		return true;
 	}
 	
-	private static boolean updateUserInfo()
-	{
-		if (mUserInfoNeedUpdate)
-		{
-			synchronized (mTempUserInfoLock) {
-				mUserInfoNeedUpdate = false;
-				mUserInfo = mTempUserInfo;
-				mTempUserInfo = null;
-				return true;
-			}
-		}
-		return false;
-	}
+//	private static boolean updateUserInfo()
+//	{
+//		if (mUserInfoNeedUpdate)
+//		{
+//			synchronized (mUserInfoLock) {
+//				mUserInfoNeedUpdate = false;
+//				mUserInfo = mTempUserInfo;
+//				mTempUserInfo = null;
+//				return true;
+//			}
+//		}
+//		return false;
+//	}
 
 	@Override
 	public void onCreate()
@@ -580,8 +582,9 @@ public class QdPushService extends Service{
 	private void checkServerPush(int secsToWait,boolean hasForground)
 	{
 		String response="";
-	
-		response=getServerPushMessage(secsToWait, hasForground, mUserInfo.getPushUrl(), mUserInfo.getPushPort());
+		synchronized (mUserInfoLock) {
+			response=getServerPushMessage(secsToWait, hasForground, mUserInfo.getPushUrl(), mUserInfo.getPushPort());
+		}
 		if(null==response||response=="")
 		{
 			return;
