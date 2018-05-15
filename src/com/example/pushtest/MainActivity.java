@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import com.qdazzle.pushPlugin.NotificationHelper;
 import com.qdazzle.pushPlugin.PushService;
+import com.qdazzle.pushPlugin.QdNotificationPlugin;
 import com.qdazzle.pushPlugin.aidl.INotificationService;
 
 import android.app.Activity;
@@ -70,7 +71,7 @@ public class MainActivity extends Activity implements OnClickListener{
 	private PendingIntent messagePendingIntent=null;
 	
 //	private static INotificationService mNotificationService=null;
-	private static ServiceConnection mPushServiceConnection;
+//	private static ServiceConnection mPushServiceConnection;
 	Intent startPushServiceIntent;
 	@Override
 	public void onClick(View v) {
@@ -86,43 +87,45 @@ public class MainActivity extends Activity implements OnClickListener{
 		//开启服务
 		else if(id==ResUtil.getId(this, "btnStartServer"))
 		{
-			Log.e(TAG,"btnStartServer");
-			//启动服务
-			startPushServiceIntent=new Intent(this,PushService.class);
-			startPushServiceIntent.putExtra("Name", MainActivity.class.getPackage().getName());
-			startPushServiceIntent.putExtra("url", "http://172.30.50.1/AndroidPush/pushMessage.php");
-			startPushServiceIntent.putExtra("port", 80);
-			startPushServiceIntent.putExtra("platformId", "90155");
-			startPushServiceIntent.putExtra("channelId", "10052");
-			startPushServiceIntent.putExtra("NotificationId", "1");
-			startService(startPushServiceIntent);
+//			Log.e(TAG,"btnStartServer");
+//			//启动服务
+//			startPushServiceIntent=new Intent(this,PushService.class);
+//			startPushServiceIntent.putExtra("Name", MainActivity.class.getPackage().getName());
+//			startPushServiceIntent.putExtra("url", "http://172.30.50.1/AndroidPush/pushMessage.php");
+//			startPushServiceIntent.putExtra("port", 80);
+//			startPushServiceIntent.putExtra("platformId", "90155");
+//			startPushServiceIntent.putExtra("channelId", "10052");
+//			startPushServiceIntent.putExtra("NotificationId", "1");
+//			startService(startPushServiceIntent);
+			QdNotificationPlugin.startService(this, "http://172.30.50.1/AndroidPush/pushMessage.php", 80, "90155", "10052", "1", 
+					"com.example.pushtest");
 			
 		}
 		else if(id==ResUtil.getId(this, "btnPushThroughServer"))
 		{
-			mPushServiceConnection=new ServiceConnection() {
-				
-				@Override
-				public void onServiceDisconnected(ComponentName name) {
-					// TODO Auto-generated method stub
-//					mNotificationService=INotificationService.Stub.asInterface(null);
-					Log.e(TAG,"onServiceDisconnected");
-					NotificationHelper.setNotificationService(name, null);
-				}
-				
-				@Override
-				public void onServiceConnected(ComponentName name, IBinder service) {
-					// TODO Auto-generated method stub
-//					mNotificationService.setPushPollRequestUrlString("172.30.50.1", 80, 90155, 10052, 1);
-					Log.e(TAG,"onServiceConnected");
-					NotificationHelper.setNotificationService(name, service);
-					NotificationHelper.setForgroundProcName("com.example.pushtest");
-//					NotificationHelper.setPushPollRequestUrlString("http://172.30.50.1/pushMessage.php", 80, "90155", "10052", "1");
-				}
-			};
-			bindService(startPushServiceIntent, mPushServiceConnection, BIND_AUTO_CREATE);
-
-			NotificationHelper.scheduleNotification(2, (int)(System.currentTimeMillis()/1000/60), "test1pushtitle", "test1pushcontent", 0);
+//			mPushServiceConnection=new ServiceConnection() {
+//				
+//				@Override
+//				public void onServiceDisconnected(ComponentName name) {
+//					// TODO Auto-generated method stub
+////					mNotificationService=INotificationService.Stub.asInterface(null);
+//					Log.e(TAG,"onServiceDisconnected");
+//					NotificationHelper.setNotificationService(name, null);
+//				}
+//				
+//				@Override
+//				public void onServiceConnected(ComponentName name, IBinder service) {
+//					// TODO Auto-generated method stub
+////					mNotificationService.setPushPollRequestUrlString("172.30.50.1", 80, 90155, 10052, 1);
+//					Log.e(TAG,"onServiceConnected");
+//					NotificationHelper.setNotificationService(name, service);
+//					NotificationHelper.setForgroundProcName("com.example.pushtest");
+////					NotificationHelper.setPushPollRequestUrlString("http://172.30.50.1/pushMessage.php", 80, "90155", "10052", "1");
+//				}
+//			};
+//			bindService(startPushServiceIntent, mPushServiceConnection, BIND_AUTO_CREATE);
+//
+//			NotificationHelper.scheduleNotification(2, (int)(System.currentTimeMillis()/1000/60), "test1pushtitle", "test1pushcontent", 0);
 		}
 	}
 	private int noticeCount=0;//用于区分不同的PendingIntent，在新生成一个PendingIntent以后后加1

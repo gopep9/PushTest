@@ -43,7 +43,7 @@ public class NotificationHelper {
 		{
 			if (mNotificationService == null)
 			{
-				Log.d(TAG, "Notification service null!");
+				Log.i(TAG, "Notification service null!");
 				return false;
 			}
 
@@ -66,7 +66,7 @@ public class NotificationHelper {
 		{
 			if (mNotificationService == null)
 			{
-				Log.d(TAG, "Notification service null!");
+				Log.i(TAG, "Notification service null!");
 				return false;
 			}
 
@@ -88,7 +88,7 @@ public class NotificationHelper {
 		{
 			if (mNotificationService == null)
 			{
-				Log.d(TAG, "Notification service null!");
+				Log.i(TAG, "Notification service null!");
 				return false;
 			}
 
@@ -111,7 +111,7 @@ public class NotificationHelper {
 		{
 			if (mNotificationService == null)
 			{
-				Log.d(TAG, "Notification service null!");
+				Log.i(TAG, "Notification service null!");
 				return false;
 			}
 
@@ -134,7 +134,7 @@ public class NotificationHelper {
 		{
 			if (mNotificationService == null)
 			{
-				Log.d(TAG, "Notification service null!");
+				Log.i(TAG, "Notification service null!");
 				return false;
 			}
 
@@ -149,6 +149,27 @@ public class NotificationHelper {
 		}
 		return false;
 	}
+	
+	public static boolean stopNotificationService() {
+		synchronized (mNotiServiceLock) {
+			if(mNotificationService == null)
+			{
+				Log.i(TAG,"Notification service null!");
+				return false;
+			}
+			
+			try 
+			{
+				mNotificationService.stopNotificationService();
+				return true;
+			}catch (Exception e) {
+				// TODO: handle exception
+				e.printStackTrace();
+			}
+		}
+		return false;
+	}
+
 
 	public static boolean readyForNotificationService()
 	{
