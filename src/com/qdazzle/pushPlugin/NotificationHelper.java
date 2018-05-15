@@ -105,7 +105,7 @@ public class NotificationHelper {
 	}
 
 	public static boolean setPushPollRequestUrlString(
-			String url, int port, String platformId, String channelId, String pushPackId)
+			String url, int port, String platformId, String channelId, String NotificationId)
 	{
 		synchronized (mNotiServiceLock)
 		{
@@ -118,7 +118,7 @@ public class NotificationHelper {
 			try
 			{
 				return mNotificationService.setPushPollRequestUrlString(
-						url, port, platformId, channelId, pushPackId);
+						url, port, platformId, channelId, NotificationId);
 			}
 			catch (RemoteException e)
 			{

@@ -18,7 +18,7 @@ public class QdUserInfo implements Serializable
 	//区分不同的渠道
 	private String channelId="";
 	//区分不同的包
-	private String pushPackId="";
+	private String NotificationId="";
 	private String pushUrl = "";
 	private int pushPort = 0;
 	
@@ -42,14 +42,14 @@ public class QdUserInfo implements Serializable
 		channelId=id;
 	}
 	
-	public String getPushPackId()
+	public String getNotificationId()
 	{
-		return pushPackId;
+		return NotificationId;
 	}
 	
-	public void setPushPackId(String id)
+	public void setNotificationId(String id)
 	{
-		pushPackId=id;
+		NotificationId=id;
 	}
 	
 	public String getPushUrl()

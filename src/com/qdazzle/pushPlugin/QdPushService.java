@@ -48,7 +48,7 @@ public class QdPushService extends Service{
 	private static QdUserInfo mTempUserInfo = null;
 	private static SortedSet<QdNotification> mNotifications = new TreeSet<QdNotification>();
 	private static String mForgroundProcName="";
-	private static int lastPushId=0;
+	private static int lastNotificationId=0;
 	
 	private static DatagramSocket mPushServerSocket=null;
 	private static volatile Thread mPushServiceThread=null;
@@ -103,6 +103,8 @@ public class QdPushService extends Service{
 		public void stopNotificationService() throws RemoteException {
 			// TODO Auto-generated method stub
 			mKeepWorking = false; // stop the push service thread
+			mIsInited=false;
+			mPushServiceThread=null;
 		}
 				
 		@Override
@@ -142,7 +144,7 @@ public class QdPushService extends Service{
 		}
 
 		@Override
-		public boolean setPushPollRequestUrlString(String url, int port, String platformId, String channelId, String pushPackId)
+		public boolean setPushPollRequestUrlString(String url, int port, String platformId, String channelId, String NotificationId)
 				throws RemoteException {
 			// TODO Auto-generated method stub
 			if(mPushServerSocket==null)
@@ -165,7 +167,7 @@ public class QdPushService extends Service{
 				mTempUserInfo.setPushPort(port);
 				mTempUserInfo.setPlatformId(platformId);
 				mTempUserInfo.setChannelId(channelId);
-				mTempUserInfo.setPushPackId(pushPackId);
+				mTempUserInfo.setNotificationId(NotificationId);
 				mUserInfoNeedUpdate = true;
 			}
 			return true;
@@ -190,13 +192,13 @@ public class QdPushService extends Service{
 		int port=intent.getIntExtra("port", 80);
 		String platformId=intent.getStringExtra("platformId");
 		String channelId=intent.getStringExtra("channelId");
-		String pushPackId=intent.getStringExtra("pushPackId");
+		String NotificationId=intent.getStringExtra("NotificationId");
 		mTempUserInfo=new QdUserInfo();
 		mTempUserInfo.setPushUrl(url);
 		mTempUserInfo.setPushPort(port);
 		mTempUserInfo.setPlatformId(platformId);
 		mTempUserInfo.setChannelId(channelId);
-		mTempUserInfo.setPushPackId(pushPackId);
+		mTempUserInfo.setNotificationId(NotificationId);
 		mUserInfoNeedUpdate = true;
 		
 		//停止以后要怎么恢复？
@@ -213,7 +215,7 @@ public class QdPushService extends Service{
 				public void run() {
 					Log.i(TAG,"the new thread start run and mKeepWorking is "+mKeepWorking);
 					loadNotifDataFromPreference();
-					lastPushId=loadLastPushId();
+					lastNotificationId=loadLastNotificationId();
 					while(mKeepWorking)
 					{
 						if(updateUserInfo())
@@ -231,7 +233,7 @@ public class QdPushService extends Service{
 						{
 							checkServerPush(60 / 3, hasForeGround);
 						}
-						Log.i(TAG,"current last id:"+lastPushId);
+						Log.i(TAG,"current last id:"+lastNotificationId);
 						Log.i(TAG,"current minute:"+System.currentTimeMillis()/1000/60);
 						Log.i(TAG,"current mNotifications:"+mNotifications);
 						/*
@@ -343,7 +345,6 @@ public class QdPushService extends Service{
 				if (object != null)
 				{
 					mNotifications = (SortedSet<QdNotification>) object;
-					int tmpMaxPushId=0;
 					Iterator<QdNotification>it=mNotifications.iterator();
 					while(it.hasNext()) {
 						QdNotification notification=it.next();
@@ -352,13 +353,8 @@ public class QdPushService extends Service{
 						{
 							mNotifications.remove(notification);
 						}
-						int pushId=notification.getId();
-						if(tmpMaxPushId<pushId)
-						{
-							tmpMaxPushId=pushId;
-						}
 					}
-//					lastPushId=tmpMaxPushId;
+//					lastNotificationId=tmpMaxNotificationId;
 				}
 				else
 				{
@@ -429,18 +425,18 @@ public class QdPushService extends Service{
 	}
 	
 	//设置最后的推送id，低于推送id的不添加入推送队列中
-	public void saveLastPushId(int lastPushId)
+	public void saveLastNotificationId(int lastNotificationId)
 	{
-		String strLastPushId=String.valueOf(lastPushId);
+		String strLastNotificationId=String.valueOf(lastNotificationId);
 //		ObjectOutputStream objectOut=null;
 		FileOutputStream fileOut=null;
 		BufferedWriter writer=null;
 		try {
 			fileOut=getApplicationContext().openFileOutput(LAST_NOTIFICATION_ID_FILE_NAME, MODE_PRIVATE);
 			writer=new BufferedWriter(new OutputStreamWriter(fileOut));
-			writer.write(strLastPushId);
+			writer.write(strLastNotificationId);
 //			objectOut=new ObjectOutputStream(fileOut);
-//			objectOut.writeObject(strLastPushId);
+//			objectOut.writeObject(strLastNotificationId);
 			
 			fileOut.getFD().sync();
 		}catch (Exception e) {
@@ -463,16 +459,16 @@ public class QdPushService extends Service{
 		}
 	}
 	
-	//可以不用这个接口了，直接检查mnotification文件中最低的pushid
-	public int loadLastPushId()
+	//可以不用这个接口了，直接检查mnotification文件中最低的NotificationId
+	public int loadLastNotificationId()
 	{
 		FileInputStream inputStream=null;
 		BufferedReader reader=null;
-		String strLastPushId="";
+		String strLastNotificationId="";
 		try {
 			inputStream=getApplicationContext().openFileInput(LAST_NOTIFICATION_ID_FILE_NAME);
 			reader=new BufferedReader(new InputStreamReader(inputStream));
-			strLastPushId=reader.readLine();
+			strLastNotificationId=reader.readLine();
 		}catch (Exception e) {
 			// TODO: handle exception
 			e.printStackTrace();
@@ -485,9 +481,9 @@ public class QdPushService extends Service{
 				}
 			}
 		}
-		if(strLastPushId=="")
-			strLastPushId="0";
-		return Integer.valueOf(strLastPushId);
+		if(strLastNotificationId=="")
+			strLastNotificationId="0";
+		return Integer.valueOf(strLastNotificationId);
 	}
 	
 	private boolean checkForground()
@@ -593,7 +589,7 @@ public class QdPushService extends Service{
 		String title="";
 		String content="";
 		int triggeringTime=0;
-		int pluginId=0;
+		int NotificationId=0;
 		try {
 			jObject=new JSONObject(response);
 			code=jObject.getInt("code");
@@ -603,9 +599,9 @@ public class QdPushService extends Service{
 //				title=jObject.getString("title");
 //				content=jObject.getString("content");
 //				triggeringTime=jObject.getString("triggeringTime");
-//				pluginId=jObject.getString("pluginId");
+//				NotificationId=jObject.getString("NotificationId");
 				JSONArray jsonArrays=jObject.getJSONArray("pushMessageArray");
-				int tmpMaxPushId=0;
+				int tmpMaxNotificationId=0;
 				for(int i=0;i<jsonArrays.length();i++)
 				{	
 					JSONObject jsonArray=jsonArrays.getJSONObject(i);
@@ -613,25 +609,25 @@ public class QdPushService extends Service{
 					title=jsonArray.getString("title");
 					content=jsonArray.getString("content");
 					triggeringTime=jsonArray.getInt("triggeringTime");
-					pluginId=jsonArray.getInt("pluginId");
-					if((triggeringTime>System.currentTimeMillis()/1000/60)&&(pluginId>lastPushId)) {
-						scheduleNotificationInService(pluginId, triggeringTime, title, content, 0);
-						if(tmpMaxPushId<pluginId)
+					NotificationId=jsonArray.getInt("NotificationId");
+					if((triggeringTime>System.currentTimeMillis()/1000/60)&&(NotificationId>lastNotificationId)) {
+						scheduleNotificationInService(NotificationId, triggeringTime, title, content, 0);
+						if(tmpMaxNotificationId<NotificationId)
 						{
-							Log.i(TAG,"pluginId is:"+pluginId);
-							tmpMaxPushId=pluginId;
+							Log.i(TAG,"NotificationId is:"+NotificationId);
+							tmpMaxNotificationId=NotificationId;
 						}
 					}
 				}
-				if(tmpMaxPushId!=0)
+				if(tmpMaxNotificationId!=0)
 				{
-					lastPushId=tmpMaxPushId;
-					Log.i(TAG,"set lastPushId is tmpMaxPushId:"+lastPushId);
+					lastNotificationId=tmpMaxNotificationId;
+					Log.i(TAG,"set lastNotificationId is tmpMaxNotificationId:"+lastNotificationId);
 					//有更改的，要更新一下本地文件
 					saveNotifDataToPreference();
-					saveLastPushId(lastPushId);
+					saveLastNotificationId(lastNotificationId);
 				}else {
-					Log.i(TAG,"tmpMaxPushId value:"+tmpMaxPushId);
+					Log.i(TAG,"tmpMaxNotificationId value:"+tmpMaxNotificationId);
 				}
 			}else {
 				Log.i(TAG,"receivePushMessage getString:"+response);
@@ -645,12 +641,12 @@ public class QdPushService extends Service{
 //				null!=title||""!=title||
 //				null!=content||""!=content||
 //				null!=triggeringTime||""!=triggeringTime||
-//				null!=pluginId||""!=pluginId)
+//				null!=NotificationId||""!=NotificationId)
 //		{
 //			//获取一个推送成功，添加到推送队列
 //			int LongTriggeringTime=Integer.parseInt(triggeringTime);
 //			if(LongTriggeringTime>System.currentTimeMillis()/1000/60) {
-//				scheduleNotificationInService(Integer.parseInt(pluginId), Integer.parseInt(triggeringTime), title, content, 0);
+//				scheduleNotificationInService(Integer.parseInt(NotificationId), Integer.parseInt(triggeringTime), title, content, 0);
 //			}
 //		}
 	}

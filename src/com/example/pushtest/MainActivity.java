@@ -94,7 +94,7 @@ public class MainActivity extends Activity implements OnClickListener{
 			startPushServiceIntent.putExtra("port", 80);
 			startPushServiceIntent.putExtra("platformId", "90155");
 			startPushServiceIntent.putExtra("channelId", "10052");
-			startPushServiceIntent.putExtra("pushPackId", "1");
+			startPushServiceIntent.putExtra("NotificationId", "1");
 			startService(startPushServiceIntent);
 			
 		}
