@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import com.qdazzle.pushPlugin.NotificationHelper;
 import com.qdazzle.pushPlugin.PushService;
+import com.qdazzle.pushPlugin.QdNotification;
 import com.qdazzle.pushPlugin.QdNotificationPlugin;
 import com.qdazzle.pushPlugin.aidl.INotificationService;
 
@@ -98,11 +99,12 @@ public class MainActivity extends Activity implements OnClickListener{
 //			startPushServiceIntent.putExtra("NotificationId", "1");
 //			startService(startPushServiceIntent);
 			QdNotificationPlugin.startService(this, "http://172.30.50.1/AndroidPush/pushMessage.php", 80, "90155", "10052", "1", 
-					"com.example.pushtest");
+					"com.example.pushtest1");
 			
 		}
 		else if(id==ResUtil.getId(this, "btnPushThroughServer"))
 		{
+			QdNotificationPlugin.stopService();
 //			mPushServiceConnection=new ServiceConnection() {
 //				
 //				@Override

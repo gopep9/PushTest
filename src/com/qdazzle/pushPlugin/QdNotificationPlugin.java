@@ -36,7 +36,7 @@ public class QdNotificationPlugin {
 		};
 		context.bindService(startPushServiceIntent, mPushServiceConnection, Context.BIND_AUTO_CREATE);
 	}
-	public void stopService()
+	static public void stopService()
 	{
 		NotificationHelper.stopNotificationService();
 	}
