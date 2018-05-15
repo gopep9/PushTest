@@ -143,6 +143,7 @@ public class QdPushService extends Service{
 			return true;
 		}
 
+		//感觉没什么用，mTempUserInfo也可以直接和mUserInfo合在一起了
 		@Override
 		public boolean setPushPollRequestUrlString(String url, int port, String platformId, String channelId, String NotificationId)
 				throws RemoteException {
@@ -167,7 +168,7 @@ public class QdPushService extends Service{
 				mTempUserInfo.setPushPort(port);
 				mTempUserInfo.setPlatformId(platformId);
 				mTempUserInfo.setChannelId(channelId);
-				mTempUserInfo.setNotificationId(NotificationId);
+				mTempUserInfo.setNotificationPackId(NotificationId);
 				mUserInfoNeedUpdate = true;
 			}
 			return true;
@@ -192,13 +193,13 @@ public class QdPushService extends Service{
 		int port=intent.getIntExtra("port", 80);
 		String platformId=intent.getStringExtra("platformId");
 		String channelId=intent.getStringExtra("channelId");
-		String NotificationId=intent.getStringExtra("NotificationId");
+		String NotificationPackId=intent.getStringExtra("NotificationPackId");
 		mTempUserInfo=new QdUserInfo();
 		mTempUserInfo.setPushUrl(url);
 		mTempUserInfo.setPushPort(port);
 		mTempUserInfo.setPlatformId(platformId);
 		mTempUserInfo.setChannelId(channelId);
-		mTempUserInfo.setNotificationId(NotificationId);
+		mTempUserInfo.setNotificationPackId(NotificationPackId);
 		mUserInfoNeedUpdate = true;
 		
 		//停止以后要怎么恢复？
