@@ -233,10 +233,7 @@ public class QdPushService extends Service{
 						 * check server push 3 times every minute. this will
 						 * block the thread for 1 min
 						 */
-						for (int i = 0; i < 3; i++)
-						{
-							checkServerPush(60 / 3, hasForeGround);
-						}
+						checkServerPush(10, hasForeGround);
 						Log.i(TAG,"current last id:"+lastNotificationId);
 						Log.i(TAG,"current minute:"+System.currentTimeMillis()/1000/60);
 						Log.i(TAG,"current mNotifications:"+mNotifications);

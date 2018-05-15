@@ -28,4 +28,25 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="hello" />
+    <EditText 
+        android:id="@+id/triggerTimeEdit"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        />
+    <EditText
+        android:id="@+id/NotificationIdEdit"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        />
+    <Button 
+        android:id="@+id/btnAddPush"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="添加推送"
+        />
+    <Button 
+        android:id="@+id/btnDelAllPush"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="删除所有推送"/>
 </LinearLayout>

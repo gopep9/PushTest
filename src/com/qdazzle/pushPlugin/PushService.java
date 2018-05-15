@@ -30,7 +30,7 @@ public class PushService extends QdPushService
 		messageNotification.flags|=Notification.FLAG_AUTO_CANCEL;
 		messageNotification.flags|=Notification.FLAG_SHOW_LIGHTS;
 //		NotificationManager messageNotificationManager=(NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-		Intent broadcastIntent=new Intent(this,Notification.class);
+		Intent broadcastIntent=new Intent(this,NotificationReceiver.class);
 		PendingIntent pendingIntent=PendingIntent.getBroadcast(this, 0, broadcastIntent, 0);
 		
 		Class notificationClass=messageNotification.getClass();

@@ -40,7 +40,7 @@ public class QdNotificationPlugin {
 	{
 		NotificationHelper.stopNotificationService();
 	}
-	//添加本地推送的接口，注意NotificationId不能和服务器重复
+	//添加本地推送的接口，注意NotificationId不能和服务器重复，不建议使用这个接口，应该由php发送信息
 	static public void addScheduleNotification(int NotificationId,int TimeToNotify,String title,String content,String tickerText,int periodMinutes)
 	{
 		NotificationHelper.scheduleNotification(NotificationId, TimeToNotify, title, content, tickerText, periodMinutes);
