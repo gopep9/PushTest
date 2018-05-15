@@ -139,6 +139,7 @@ public class QdPushService extends Service{
 				}
 				mNotifications.add(note);
 				mNotificationsModify = true;
+				
 			}
 
 			return true;

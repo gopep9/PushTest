@@ -29,12 +29,14 @@ import android.content.SharedPreferences.Editor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.text.Editable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnClickListener{
@@ -45,6 +47,12 @@ public class MainActivity extends Activity implements OnClickListener{
 	private Button btnStartService;
 	private Button btnStopServer;
 	private TextView messageText;
+	
+	private EditText triggerTimeEdit;
+	private EditText NotificationIdEdit;
+	private Button btnAddPush;
+	private Button btnDelAllPush;
+	
 	final static String TAG=MainActivity.class.getName();
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +71,12 @@ public class MainActivity extends Activity implements OnClickListener{
 		btnStopServer.setOnClickListener(this);
 		messageText=(TextView)findViewById(ResUtil.getId(this, "messageText"));
 		
+		triggerTimeEdit=(EditText)findViewById(ResUtil.getId(this, "triggerTimeEdit"));
+		NotificationIdEdit=(EditText)findViewById(ResUtil.getId(this, "NotificationIdEdit"));
+		btnAddPush=(Button)findViewById(ResUtil.getId(this, "btnAddPush"));
+		btnDelAllPush=(Button)findViewById(ResUtil.getId(this, "btnDelAllPush"));
+		btnAddPush.setOnClickListener(this);
+		btnDelAllPush.setOnClickListener(this);
 	}
 	
 	private Intent messageIntent=null;
@@ -128,6 +142,16 @@ public class MainActivity extends Activity implements OnClickListener{
 //			bindService(startPushServiceIntent, mPushServiceConnection, BIND_AUTO_CREATE);
 //
 //			NotificationHelper.scheduleNotification(2, (int)(System.currentTimeMillis()/1000/60), "test1pushtitle", "test1pushcontent", 0);
+		}
+		else if(id==ResUtil.getId(this, "btnAddPush"))
+		{
+			String triggerTimeStr=triggerTimeEdit.getText().toString();
+			String NotificationIdStr=NotificationIdEdit.getText().toString();
+			QdNotificationPlugin.addScheduleNotification((int)Integer.valueOf(NotificationIdStr), (int)Integer.valueOf(triggerTimeStr), "title", "content", "tickerText", 0);
+		}
+		else if(id==ResUtil.getId(this, "btnDelAllPush"))
+		{
+			QdNotificationPlugin.DeleteAllScheduleNotification();
 		}
 	}
 	private int noticeCount=0;//用于区分不同的PendingIntent，在新生成一个PendingIntent以后后加1

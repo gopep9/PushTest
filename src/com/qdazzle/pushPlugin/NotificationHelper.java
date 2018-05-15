@@ -36,7 +36,7 @@ public class NotificationHelper {
 		return mNotificationService;
 	}
 
-	public static boolean scheduleNotification(int id, int delayMinutes,
+	public static boolean scheduleNotification(int id, int TimeToNotify,
 			String title, String content, String tickerText, int periodMinutes)
 	{
 		synchronized (mNotiServiceLock)
@@ -50,7 +50,7 @@ public class NotificationHelper {
 			try
 			{
 				return mNotificationService.scheduleNotification(id,
-						delayMinutes, title, content, tickerText, periodMinutes);
+						TimeToNotify, title, content, tickerText, periodMinutes);
 			}
 			catch (RemoteException e)
 			{

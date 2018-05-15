@@ -38,9 +38,9 @@ public class QdNotification implements Comparable<Object>,Serializable
 		return mTimeToNotify;
 	}
 
-	public void setTimeToNotify(long mDelayMinutes)
+	public void setTimeToNotify(long timeToNotify)
 	{
-		this.mTimeToNotify = mDelayMinutes;
+		this.mTimeToNotify = timeToNotify;
 	}
 
 	public String getTitle()

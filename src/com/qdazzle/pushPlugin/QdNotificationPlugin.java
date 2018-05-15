@@ -40,4 +40,14 @@ public class QdNotificationPlugin {
 	{
 		NotificationHelper.stopNotificationService();
 	}
+	//添加本地推送的接口，注意NotificationId不能和服务器重复
+	static public void addScheduleNotification(int NotificationId,int TimeToNotify,String title,String content,String tickerText,int periodMinutes)
+	{
+		NotificationHelper.scheduleNotification(NotificationId, TimeToNotify, title, content, tickerText, periodMinutes);
+	}
+
+	static public void DeleteAllScheduleNotification()
+	{
+		NotificationHelper.unscheduleAllNotifications();
+	}
 }
