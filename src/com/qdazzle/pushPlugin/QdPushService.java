@@ -116,7 +116,7 @@ public class QdPushService extends Service{
 		
 		//public boolean schedueNotification(int id, int delayMinutes, String title, String content, int periodMinutes)
 		@Override
-		public boolean scheduleNotification(int id, int triggerMinutes, String title, String content, int periodMinutes)
+		public boolean scheduleNotification(int id, int triggerMinutes, String title, String content, String tickerText, int periodMinutes)
 				throws RemoteException {
 			// TODO Auto-generated method stub
 			synchronized (mNotificationsLock)
@@ -127,6 +127,7 @@ public class QdPushService extends Service{
 				note.setTitle(title);
 				note.setContent(content);
 				note.setPeriod(periodMinutes);
+				note.setTickerText(tickerText);
 
 				for (QdNotification notetmp : mNotifications)
 				{
@@ -224,7 +225,8 @@ public class QdPushService extends Service{
 						}
 						
 						// if our game is on foreground.
-						boolean hasForeGround=checkForground();
+						boolean hasForeGround=false;
+								//checkForground();
 						
 						/*
 						 * check server push 3 times every minute. this will
@@ -243,7 +245,7 @@ public class QdPushService extends Service{
 						checkLocalPush(hasForeGround);
 						try {
 							//间隔5秒
-							Thread.sleep(10000);
+							Thread.sleep(5000);
 						} catch (Exception e) {
 							// TODO: handle exception
 							Log.e(TAG,"the new thread get a exception is "+e.toString());
@@ -260,7 +262,7 @@ public class QdPushService extends Service{
 		return START_STICKY;
 	}
 
-	public boolean scheduleNotificationInService(int id, int triggerMinutes, String title, String content, int periodMinutes)
+	public boolean scheduleNotificationInService(int id, int triggerMinutes, String title, String content, String tickerText, int periodMinutes)
 	{
 		synchronized (mNotificationsLock)
 		{
@@ -270,6 +272,7 @@ public class QdPushService extends Service{
 			note.setTitle(title);
 			note.setContent(content);
 			note.setPeriod(periodMinutes);
+			note.setTickerText(tickerText);
 
 			for (QdNotification notetmp : mNotifications)
 			{
@@ -307,7 +310,7 @@ public class QdPushService extends Service{
 		Log.i(TAG,"onCreate");
 	}
 		
-	protected void popNotificationNow(int id,String title,String content)
+	protected void popNotificationNow(int id,String title,String content,String tickerText)
 	{
 	}
 	
@@ -487,6 +490,7 @@ public class QdPushService extends Service{
 		return Integer.valueOf(strLastNotificationId);
 	}
 	
+	//感觉可以去掉，假如没有在跑的话也不能跑，能够推送成功的一定是线程在跑的
 	private boolean checkForground()
 	{
 		/*
@@ -543,7 +547,7 @@ public class QdPushService extends Service{
 						&& currentMinute - note.getTimeToNotify() < OUT_OF_DATE_VAL)
 				{
 					popNotificationNow(note.getId(),
-							note.getTitle(), note.getContent());
+							note.getTitle(), note.getContent(),note.getTickerText());
 				}
 				changed = true;
 			}
@@ -612,7 +616,7 @@ public class QdPushService extends Service{
 					triggeringTime=jsonArray.getInt("triggeringTime");
 					NotificationId=jsonArray.getInt("NotificationId");
 					if((triggeringTime>System.currentTimeMillis()/1000/60)&&(NotificationId>lastNotificationId)) {
-						scheduleNotificationInService(NotificationId, triggeringTime, title, content, 0);
+						scheduleNotificationInService(NotificationId, triggeringTime, title, content, tickerText, 0);
 						if(tmpMaxNotificationId<NotificationId)
 						{
 							Log.i(TAG,"NotificationId is:"+NotificationId);

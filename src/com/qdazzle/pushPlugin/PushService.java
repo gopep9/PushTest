@@ -17,7 +17,7 @@ public class PushService extends QdPushService
 {
 	final static String TAG=PushService.class.getName();
 //	@SuppressWarnings("deprecation")
-	protected void popNotificationNow(int id, String title, String content)
+	protected void popNotificationNow(int id, String title, String content, String tickerText)
 	{
 		//Log.v("t3game", "t3game notification : id "+id + "title : "+title+" content : "+ content);
 			
@@ -25,7 +25,7 @@ public class PushService extends QdPushService
 		Notification messageNotification = new Notification();
 		//暂时使用R.xxx索引资源
 		messageNotification.icon=R.drawable.ic_launcher;
-		messageNotification.tickerText=content;
+		messageNotification.tickerText=tickerText;
 		messageNotification.defaults=Notification.DEFAULT_SOUND;
 		messageNotification.flags|=Notification.FLAG_AUTO_CANCEL;
 		messageNotification.flags|=Notification.FLAG_SHOW_LIGHTS;

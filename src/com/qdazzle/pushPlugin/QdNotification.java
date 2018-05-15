@@ -20,6 +20,8 @@ public class QdNotification implements Comparable<Object>,Serializable
 	private String mContent = "";
 	//推送延迟的时间（周期）？在推送失败后设置mTimeToNotify加上这个值
 	private int mPeriod = 0;
+	
+	private String tickerText="";
 
 	public int getId()
 	{
@@ -104,6 +106,16 @@ public class QdNotification implements Comparable<Object>,Serializable
 	public void setPeriod(int mPeriod)
 	{
 		this.mPeriod = mPeriod;
+	}
+	
+	public void setTickerText(String text)
+	{
+		this.tickerText=text;
+	}
+	
+	public String getTickerText()
+	{
+		return this.tickerText;
 	}
 	
 	@Override
