@@ -9,8 +9,10 @@ import android.os.IBinder;
 
 public class QdNotificationPlugin {
 	private static ServiceConnection mPushServiceConnection;
+	private static Context mContext;
 	static public void startService(Context context,String url,int port,String platformId,String channelId,String NotificationPackId,final String packageId)
 	{
+		mContext=context;
 		Intent startPushServiceIntent;
 		startPushServiceIntent=new Intent(context,PushService.class);
 		startPushServiceIntent.putExtra("url", url);
@@ -49,5 +51,10 @@ public class QdNotificationPlugin {
 	static public void DeleteAllScheduleNotification()
 	{
 		NotificationHelper.unscheduleAllNotifications();
+	}
+	
+	static public void onDestroy()
+	{
+		mContext.unbindService(mPushServiceConnection);
 	}
 }

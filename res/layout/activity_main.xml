@@ -28,11 +28,20 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="hello" />
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="time,minute" />
     <EditText 
         android:id="@+id/triggerTimeEdit"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         />
+    <TextView
+        android:id="@+id/timeTextView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Notification Id" />
     <EditText
         android:id="@+id/NotificationIdEdit"
         android:layout_width="fill_parent"
