@@ -10,7 +10,8 @@ import android.os.IBinder;
 public class QdNotificationPlugin {
 	private static ServiceConnection mPushServiceConnection;
 	private static Context mContext;
-	static public void startService(Context context,String url,int port,String platformId,String channelId,String NotificationPackId,final String packageId)
+	static public void startService(Context context,String url,int port,String platformId,String channelId,
+			String NotificationPackId,final String packageId,int requestPeriod/*请求周期*/)
 	{
 		mContext=context;
 		Intent startPushServiceIntent;
@@ -20,6 +21,7 @@ public class QdNotificationPlugin {
 		startPushServiceIntent.putExtra("platformId", platformId);
 		startPushServiceIntent.putExtra("channelId", channelId);
 		startPushServiceIntent.putExtra("NotificationPackId", NotificationPackId);
+		startPushServiceIntent.putExtra("requestPeriod", requestPeriod);
 		context.startService(startPushServiceIntent);
 		mPushServiceConnection=new ServiceConnection() {
 			

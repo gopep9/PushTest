@@ -49,7 +49,9 @@ public class QdPushService extends Service{
 	private static SortedSet<QdNotification> mNotifications = new TreeSet<QdNotification>();
 	private static String mForgroundProcName="";
 	private static int lastNotificationId=0;
-	
+	private static int mRequestPeriod=1;//请求的周期，分钟为单位
+	private static int lastRequestTime=0;//上一次请求的时间，单位分钟
+
 	private static DatagramSocket mPushServerSocket=null;
 	private static volatile Thread mPushServiceThread=null;
 	private static NotificationManager mNotifManager = null;
@@ -58,7 +60,6 @@ public class QdPushService extends Service{
 	private static Object mUserInfoLock=new Object();
 	private static volatile boolean mNotificationsModify=false;
 	private static volatile boolean mKeepWorking = false;
-//	private static volatile boolean mUserInfoNeedUpdate = false;
 	private static volatile boolean mIsInited=false;
 	
 	private static final String NOTIF_PREF_FILE_NAME = "NotifPrefFile";
@@ -204,7 +205,10 @@ public class QdPushService extends Service{
 						 * check server push 3 times every minute. this will
 						 * block the thread for 1 min
 						 */
-						checkServerPush(10, hasForeGround);
+						if(lastRequestTime+mRequestPeriod<System.currentTimeMillis()/1000/60) {
+							lastRequestTime=(int)(System.currentTimeMillis()/1000/60);
+							checkServerPush(10, hasForeGround);
+						}
 						Log.i(TAG,"current last id:"+lastNotificationId);
 						Log.i(TAG,"current minute:"+System.currentTimeMillis()/1000/60);
 						Log.i(TAG,"current mNotifications:"+mNotifications);

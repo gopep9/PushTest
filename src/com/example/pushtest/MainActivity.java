@@ -115,7 +115,7 @@ public class MainActivity extends Activity implements OnClickListener{
 //			startPushServiceIntent.putExtra("NotificationId", "1");
 //			startService(startPushServiceIntent);
 			QdNotificationPlugin.startService(this, "http://172.30.50.1/AndroidPush/pushMessage.php", 80, "90155", "10052", "1", 
-					"com.example.pushtest");
+					"com.example.pushtest",30);
 			
 		}
 		else if(id==ResUtil.getId(this, "btnStopServer"))
