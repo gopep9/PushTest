@@ -52,6 +52,7 @@ public class MainActivity extends Activity implements OnClickListener{
 	private EditText NotificationIdEdit;
 	private Button btnAddPush;
 	private Button btnDelAllPush;
+	private EditText periodEdit;
 	
 	final static String TAG=MainActivity.class.getName();
 	@Override
@@ -77,6 +78,7 @@ public class MainActivity extends Activity implements OnClickListener{
 		btnDelAllPush=(Button)findViewById(ResUtil.getId(this, "btnDelAllPush"));
 		btnAddPush.setOnClickListener(this);
 		btnDelAllPush.setOnClickListener(this);
+		periodEdit=(EditText)findViewById(ResUtil.getId(this, "periodEdit"));
 	}
 	
 	private Intent messageIntent=null;
@@ -147,7 +149,8 @@ public class MainActivity extends Activity implements OnClickListener{
 		{
 			String triggerTimeStr=triggerTimeEdit.getText().toString();
 			String NotificationIdStr=NotificationIdEdit.getText().toString();
-			QdNotificationPlugin.addScheduleNotification((int)Integer.valueOf(NotificationIdStr), (int)Integer.valueOf(triggerTimeStr), "title", "content", "tickerText", 0);
+			String periodStr=periodEdit.getText().toString();
+			QdNotificationPlugin.addScheduleNotification((int)Integer.valueOf(NotificationIdStr), (int)Integer.valueOf(triggerTimeStr), "title", "content", "tickerText", Integer.valueOf(periodStr));
 		}
 		else if(id==ResUtil.getId(this, "btnDelAllPush"))
 		{

@@ -325,6 +325,8 @@ public class QdPushService extends Service{
 		super.onDestroy();
 		Log.i(TAG,"onDestroy");
 		mKeepWorking = false;
+		mIsInited=false;
+		mPushServiceThread=null;
 		if (mPushServerSocket != null)
 		{
 			mPushServerSocket.close();
@@ -562,7 +564,8 @@ public class QdPushService extends Service{
 					mNotifications.remove(note);
 					if (note.getPeriod() > 0)
 					{
-						note.setTimeToNotify(note.getTimeToNotify()+ note.getPeriod());
+						//原本是note.getTimeToNotify()+ note.getPeriod()的，现在改为用当前时间加上getPeriod
+						note.setTimeToNotify(System.currentTimeMillis()/1000/60+note.getPeriod());
 						mNotifications.add(note);
 					}
 				}
