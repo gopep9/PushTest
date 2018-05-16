@@ -68,5 +68,9 @@ public class QdUserInfo implements Serializable
 	{
 		this.pushPort = pushPort;
 	}
-
+	public String getRequestStr()
+	{
+		String requestStr=pushUrl+"?platformId="+platformId+"&channelId="+channelId;
+		return requestStr;
+	}
 }

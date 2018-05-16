@@ -555,7 +555,7 @@ public class QdPushService extends Service{
 	{
 		String response="";
 		synchronized (mUserInfoLock) {
-			response=getServerPushMessage(secsToWait, hasForground, mUserInfo.getPushUrl(), mUserInfo.getPushPort());
+			response=getServerPushMessage(secsToWait, hasForground, mUserInfo.getRequestStr(), mUserInfo.getPushPort());
 		}
 		if(null==response||response=="")
 		{
