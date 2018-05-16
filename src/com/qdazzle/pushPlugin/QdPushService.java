@@ -144,37 +144,6 @@ public class QdPushService extends Service{
 
 			return true;
 		}
-
-		//感觉没什么用，mTempUserInfo也可以直接和mUserInfo合在一起了
-		@Override
-		public boolean setPushPollRequestUrlString(String url, int port, String platformId, String channelId, String NotificationId)
-				throws RemoteException {
-			// TODO Auto-generated method stub
-			if(mPushServerSocket==null)
-			{
-				try {
-					mPushServerSocket=new DatagramSocket();
-				}catch(SocketException e)
-				{
-					e.printStackTrace();
-					return false;
-				}catch (Exception e)
-				{
-					e.printStackTrace();
-					return false;
-				}
-			}
-			synchronized (mUserInfoLock) {
-				mUserInfo = new QdUserInfo();
-				mUserInfo.setPushUrl(url);
-				mUserInfo.setPushPort(port);
-				mUserInfo.setPlatformId(platformId);
-				mUserInfo.setChannelId(channelId);
-				mUserInfo.setNotificationPackId(NotificationId);
-//				mUserInfoNeedUpdate = true;
-			}
-			return true;
-		}
 	};
 	
 	@Override
@@ -632,8 +601,10 @@ public class QdPushService extends Service{
 				{
 					lastNotificationId=tmpMaxNotificationId;
 					Log.i(TAG,"set lastNotificationId is tmpMaxNotificationId:"+lastNotificationId);
-					//有更改的，要更新一下本地文件
-					saveNotifDataToPreference();
+					//有更改的，要更新一下本地文件，更改为不在这里更新，而是设置mNotificationsModify之后在检查本地推送的时候统一更新
+					mNotificationsModify=true;
+//					saveNotifDataToPreference();
+//					更新服务端发送的NotificationId的最大值
 					saveLastNotificationId(lastNotificationId);
 				}else {
 					Log.i(TAG,"tmpMaxNotificationId value:"+tmpMaxNotificationId);

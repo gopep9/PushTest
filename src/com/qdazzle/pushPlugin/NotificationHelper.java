@@ -104,30 +104,6 @@ public class NotificationHelper {
 		return false;
 	}
 
-	public static boolean setPushPollRequestUrlString(
-			String url, int port, String platformId, String channelId, String NotificationId)
-	{
-		synchronized (mNotiServiceLock)
-		{
-			if (mNotificationService == null)
-			{
-				Log.i(TAG, "Notification service null!");
-				return false;
-			}
-
-			try
-			{
-				return mNotificationService.setPushPollRequestUrlString(
-						url, port, platformId, channelId, NotificationId);
-			}
-			catch (RemoteException e)
-			{
-				e.printStackTrace();
-			}
-		}
-		return false;
-	}
-
 	public static boolean setForgroundProcName(String procName)
 	{
 		synchronized (mNotiServiceLock)
