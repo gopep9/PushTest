@@ -33,7 +33,7 @@ public class PushService extends QdPushService
 		
 		//尝试不用receive，直接打开activity
 		Intent broadcastIntent=new Intent(this,NotificationReceiver.class);
-		PendingIntent pendingIntent=PendingIntent.getBroadcast(this, 0, broadcastIntent, 0);
+		PendingIntent pendingIntent=PendingIntent.getBroadcast(this, id, broadcastIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		
 		Class notificationClass=messageNotification.getClass();
 		try {
