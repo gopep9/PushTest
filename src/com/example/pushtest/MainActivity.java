@@ -77,6 +77,7 @@ public class MainActivity extends Activity implements OnClickListener{
 		else if(id==ResUtil.getId(this, "btnStopServer"))
 		{
 //			QdNotificationPlugin.stopService();
+			ServerPushPlugin.getInstance().stop();
 		}
 	}	
 	@Override
