@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -125,7 +126,9 @@ public class PushService extends Service {
 					title=jsonArray.getString("title");
 					content=jsonArray.getString("content");
 					triggeringTime=jsonArray.getLong("triggeringTime");
-					mNotifications.add(new QdNotification(tickerText, title, content, triggeringTime));
+					if(triggeringTime>currentMinute()) {
+						mNotifications.add(new QdNotification(tickerText, title, content, triggeringTime));
+					}
 				}
 			}else {
 				Log.i(TAG,"receivePushMessage getString:"+responseStr);
