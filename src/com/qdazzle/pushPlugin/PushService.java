@@ -3,6 +3,7 @@ package com.qdazzle.pushPlugin;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Comparator;
@@ -12,9 +13,15 @@ import java.util.TreeSet;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.example.pushtest.R;
+import com.example.pushtest.ResUtil;
 import com.qdazzle.pushPlugin.aidl.INotificationService;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -24,10 +31,11 @@ public class PushService extends Service {
 	private static final String TAG=PushService.class.getName();
 	private static volatile Thread mPushServiceThread=null;
 	private static volatile boolean mKeepWorking=false;
-	private static SortedSet<Notification> mNotifications = new TreeSet<Notification>((Comparator<Notification>)new Comparator<Notification>() {
+	private static int mNotificationId=143825;
+	private static SortedSet<QdNotification> mNotifications = new TreeSet<QdNotification>((Comparator<QdNotification>)new Comparator<QdNotification>() {
 
 		@Override
-		public int compare(Notification o1, Notification o2) {
+		public int compare(QdNotification o1, QdNotification o2) {//使用时间作为唯一标识
 			// TODO Auto-generated method stub
 			return (int)(o1.getTriggeringTime()-o2.getTriggeringTime());
 		}
@@ -74,9 +82,10 @@ public class PushService extends Service {
 						nextRequestTime=currentMinute()+requestPeriod;
 						checkServerPush(10,url,port,platformId,channelId,notificationPackId);
 					}
-					Log.e(TAG,mNotifications.toString());
+					Log.i(TAG,"current time"+currentMinute()+mNotifications.toString());
+					checkPushExpire();
 					try {
-						Thread.sleep(1000);
+						Thread.sleep(1000*60);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -116,13 +125,7 @@ public class PushService extends Service {
 					title=jsonArray.getString("title");
 					content=jsonArray.getString("content");
 					triggeringTime=jsonArray.getLong("triggeringTime");
-					mNotifications.add(new Notification(tickerText, title, content, triggeringTime));
-//					Log.e(TAG,"notification set"+AlarmPushPlugin.currentNotification);
-//					if(!AlarmPushPlugin.getInstance().checkNotificationIsSet(triggeringTime)&&triggeringTime>currentMinute()) {
-//						AlarmPushPlugin.getInstance().addNotification(triggeringTime);
-//						addAlarmToNotification(NotificationId, triggeringTime, title, content, tickerText,context);
-//						NotificationId++;
-//					}
+					mNotifications.add(new QdNotification(tickerText, title, content, triggeringTime));
 				}
 			}else {
 				Log.i(TAG,"receivePushMessage getString:"+responseStr);
@@ -131,8 +134,57 @@ public class PushService extends Service {
 			// TODO: handle exception
 			e.printStackTrace();
 		}
-
 	}
+	
+	private void checkPushExpire()
+	{
+		for (QdNotification notification : mNotifications) {
+			if(notification.getTriggeringTime()<currentMinute()&&notification.getTriggeringTime()+60<currentMinute())
+			{
+				//过期
+				mNotifications.remove(notification);
+				break;
+			}
+			else if(notification.getTriggeringTime()<currentMinute()&&notification.getTriggeringTime()+60>=currentMinute()) {
+				popNotificationNow(mNotificationId++, notification.getTitle(), notification.getContent(), notification.getTickerText());
+				mNotifications.remove(notification);
+				break;
+			}
+		}
+	}
+	
+	protected void popNotificationNow(int notificationId, String title, String content, String tickerText)
+	{
+		//Log.v("t3game", "t3game notification : id "+id + "title : "+title+" content : "+ content);
+			
+		Log.e(TAG,"popNotificationNow");
+		Notification messageNotification = new Notification();
+		//暂时使用R.xxx索引资源
+		messageNotification.icon=ResUtil.getDrawableId(this, "ic_launcher");//R.drawable.ic_launcher;
+		messageNotification.tickerText=tickerText;
+		messageNotification.defaults=Notification.DEFAULT_SOUND;
+		messageNotification.flags|=Notification.FLAG_AUTO_CANCEL;
+		messageNotification.flags|=Notification.FLAG_SHOW_LIGHTS;
+		NotificationManager messageNotificationManager=(NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+		
+		//尝试不用receive，直接打开activity
+  		Intent launch = this.getPackageManager().getLaunchIntentForPackage(this.getPackageName());
+   		launch.addCategory(Intent.CATEGORY_LAUNCHER);
+   		launch.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		PendingIntent messagePendingIntent=PendingIntent.getActivity(this, notificationId, launch, PendingIntent.FLAG_UPDATE_CURRENT);
+		
+		Class notificationClass=messageNotification.getClass();
+		try {
+			Method setLatestEventInfoMethod=notificationClass.getDeclaredMethod("setLatestEventInfo",
+				Context.class,CharSequence.class,CharSequence.class,PendingIntent.class);
+			setLatestEventInfoMethod.invoke(messageNotification, this,title,content,messagePendingIntent);
+		}catch(Exception e) {
+			Log.e(TAG,"setLatestEventInfoMethod.invoke error:"+e.toString());
+		}
+		Log.e(TAG,"messageNotificationManager.notify(notificationId,messageNotification);");
+		messageNotificationManager.notify(notificationId,messageNotification);
+	}
+	
 	
 	private String getServerPushMessage(int secsToWait,String urlStr,int port)
 	{

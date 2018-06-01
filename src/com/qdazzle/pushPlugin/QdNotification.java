@@ -1,12 +1,12 @@
 package com.qdazzle.pushPlugin;
 
-public class Notification {
+public class QdNotification {
 	private String mTickerText="";
 	private String mTitle="";
 	private String mContent="";
 	private long mTriggeringTime=0;
 	
-	public Notification(String tickerText,String title,String content,long triggeringTime)
+	public QdNotification(String tickerText,String title,String content,long triggeringTime)
 	{
 		mTickerText=tickerText;
 		mTitle=title;
