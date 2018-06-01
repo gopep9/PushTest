@@ -591,7 +591,7 @@ public class QdPushService extends Service{
 					title=jsonArray.getString("title");
 					content=jsonArray.getString("content");
 					triggeringTime=jsonArray.getInt("triggeringTime");
-					NotificationId=jsonArray.getInt("NotificationId");
+					NotificationId=jsonArray.getInt("notificationId");
 					if((triggeringTime>System.currentTimeMillis()/1000/60)&&(NotificationId>lastNotificationId)) {
 						scheduleNotificationInService(NotificationId, triggeringTime, title, content, tickerText, 0);
 						if(tmpMaxNotificationId<NotificationId)
@@ -620,19 +620,6 @@ public class QdPushService extends Service{
 			Log.e(TAG, "receivePushMessage exception:"+e.toString());
 			return;
 		}
-//		if(0==code||
-//				null!=tickerText||""!=tickerText||
-//				null!=title||""!=title||
-//				null!=content||""!=content||
-//				null!=triggeringTime||""!=triggeringTime||
-//				null!=NotificationId||""!=NotificationId)
-//		{
-//			//获取一个推送成功，添加到推送队列
-//			int LongTriggeringTime=Integer.parseInt(triggeringTime);
-//			if(LongTriggeringTime>System.currentTimeMillis()/1000/60) {
-//				scheduleNotificationInService(Integer.parseInt(NotificationId), Integer.parseInt(triggeringTime), title, content, 0);
-//			}
-//		}
 	}
 	
 	private String getServerPushMessage(int secsToWait,boolean hasForground,String urlStr,int port)
