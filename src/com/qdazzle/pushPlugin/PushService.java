@@ -48,6 +48,7 @@ public class PushService extends Service {
 			// TODO Auto-generated method stub
 			mKeepWorking=false;
 			mPushServiceThread=null;
+			nextRequestTime=0;
 		}
 	};
 	@Override
